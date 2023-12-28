@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+:root {
+	--dark-color-a: #667aff;
+	--dark-color-b: #7386ff;
+	--light-color: #ababab;
+	--success-color: #5cb85c;
+	--error-color: #d9534f;
+}
+
+#three-canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: 'Roboto', sans-serif;
+	font-size: 16px;
+	background: #f6f6f7;
+	margin: 0px;
+}
+
+ul {
+	list-style: none;
+}
+
+a {
+	text-decoration: none;
+}
+
+.btn {
+	cursor: pointer;
+	padding: 5px 15px;
+	background: #3750de;
+	font-weight: 600;
+	color: #ffffff;
+	border: solid;
+	border-width: 2.5px;
+	border-color: #3750de;
+	font-size: 17px;
+}
+
+.btn:hover {
+	background: #132172;
+	color: #3750de;
+}
+
+/* Chat Page */
+
+.exit-button-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+#room-name {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000; 
+    color: #3750de; 
+}
+
+.chat-container {
+    z-index: 1000;
+    max-width: 500px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(170, 170, 170, 0.3);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    height: 70vh; 
+}
+
+.chat-main {
+    z-index: 1000;
+    display: flex; /* 수정: grid 대신 flex 사용 */
+    flex: 1; /* 추가: flex 속성을 추가하여 자식 요소가 높이를 꽉 채울 수 있도록 함 */
+}
+
+.chat-sidebar {
+    z-index: 1000;
+    background: #3750de;
+    color: #fff;
+    padding: 10px;
+    flex: 2; 
+    width: 200px;
+}
+
+.chat-messages {
+    z-index: 1000;
+    padding: 15px;
+    height: 460px;
+    width: 200px;
+    overflow-y: scroll;
+    flex: 4; /* 추가: 자식 요소가 높이를 꽉 채울 수 있도록 함 */
+}
+
+.chat-form-container {
+    z-index: 1000;
+    padding: 10px 15px;
+    background-color: #1d3dca;
+}
+
+.chat-form-container form {
+    z-index: 1000;
+    display: flex;
+    flex: 1; /* 추가: 자식 요소가 높이를 꽉 채울 수 있도록 함 */
+}
+
+.chat-form-container input[type='text'] {
+    z-index: 1000;
+    font-size: 14px;
+    padding: 5px;
+    height: 30px;
+    flex: 1;
+    border: none;
+    outline: none;
+}

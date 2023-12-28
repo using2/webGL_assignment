@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+:root {
+	--dark-color-a: #667aff;
+	--dark-color-b: #7386ff;
+	--light-color: #ababab;
+	--success-color: #5cb85c;
+	--error-color: #d9534f;
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: 'Roboto', sans-serif;
+	font-size: 16px;
+	background: #f6f6f7;
+	margin: 20px;
+}
+
+ul {
+	list-style: none;
+}
+
+a {
+	text-decoration: none;
+}
+
+.btn {
+	cursor: pointer;
+	padding: 5px 15px;
+	background: #3750de;
+	font-weight: 600;
+	color: #ffffff;
+	border: solid;
+	border-width: 2.5px;
+	border-color: #3750de;
+	font-size: 17px;
+}
+
+.btn:hover {
+	background: #132172;
+	color: #3750de;
+}
+
+/* Join Page */
+.join-container {
+	max-width: 500px;
+	margin: 80px auto;
+	color: #fff;
+	box-shadow: 0 20px 34px rgba(170, 170, 170, 0.25), 0 16px 16px rgba(170, 170, 170, 0.25);
+}
+
+.join-header {
+	text-align: center;
+	padding: 20px;
+	background: #1d3dca;
+}
+
+.join-main {
+	padding: 30px 40px;
+	background: #f6f6f7;
+}
+
+.join-main p {
+	margin-bottom: 20px;
+}
+
+.join-main .form-control {
+	margin-bottom: 20px;
+}
+
+.join-main label {
+	display: block;
+	margin-bottom: 5px;
+	color: #1d3dca;
+	font-weight: bold;
+}
+
+.join-main input[type='text'] {
+	font-size: 16px;
+	padding: 5px;
+	height: 40px;
+	width: 100%;
+	outline: none;
+	border: solid;
+	border-color: #1d3dca;
+	border-radius: 10px;
+	background: none;
+}
+
+.join-main select {
+	font-size: 16px;
+	padding: 5px;
+	height: 40px;
+	width: 100%;
+	outline: none;
+	border: solid;
+	border-color: #1d3dca;
+	border-radius: 10px;
+	background: none;
+}
+
+.join-main .btn {
+	margin-top: 20px;
+	width: 100%;
+	height: 40px;
+	font-weight: bold;
+	color: #ffffff;
+	border: solid;
+	border-width: 2.5px;
+	background: #1d3dca;
+	border-color: #1d3dca;
+	border-radius: 10px;
+}
+
+.join-main .btn:hover {
+	color: #1d3dca;
+	background: #ffffff;
+}
+
+@media (max-width: 700px) {
+	.chat-main {
+		display: block;
+	}
+
+	.chat-sidebar {
+		display: none;
+	}
+}

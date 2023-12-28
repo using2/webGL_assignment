@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>실시간 채팅</title>
+  </head>
+  <body>
+    <h1>실시간 채팅</h1>
+    <ul id="chat-messages"></ul>
+    <form id="chat-form">
+      <input type="text" id="message-input" autocomplete="off" />
+      <button type="submit">전송</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      const chatMessages = document.getElementById("chat-messages");
+      const chatForm = document.getElementById("chat-form");
+      const messageInput = document.getElementById("message-input");
+
+      chatForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const message = messageInput.value;
+        if (message.trim() !== "") {
+          socket.emit("chat message", message);
+          messageInput.value = "";
+        }
+      });
+
+      socket.on("chat message", (message) => {
+        const li = document.createElement("li");
+        li.textContent = message;
+        chatMessages.appendChild(li);
+      });
+    </script>
+  </body>
+</html>

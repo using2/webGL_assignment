@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./css/join.css" />
+    <title>three</title>
+  </head>
+  <body>
+    <div class="join-container">
+      <header class="join-header">
+        <h1>채팅방</h1>
+      </header>
+      <main class="join-main">
+        <form action="chat.html">
+          <div class="form-control">
+            <label for="username">이름</label>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              placeholder="이름을 입력하세요."
+              onfocus="this.placeholder=''"
+              onblur="this.placeholder='이름을 입력하세요.'"
+              required
+            />
+          </div>
+          <div class="form-control">
+            <label for="room">채팅방</label>
+            <select name="room" id="room">
+              <option value="ROOM#556-1">ROOM#556-1</option>
+              <option value="ROOM#556-2">ROOM#556-2</option>
+              <option value="ROOM#556-3">ROOM#556-3</option>
+              <option value="ROOM#556-4">ROOM#556-4</option>
+              <option value="ROOM#556-5">ROOM#556-5</option>
+              <option value="ROOM#556-6">ROOM#556-6</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">완료</button>
+        </form>
+      </main>
+    </div>
+  </body>
+</html>
