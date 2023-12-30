@@ -7,7 +7,7 @@
   </head>
   <body>
     <div class="exit-button-container">
-      <a href="/index.html" class="btn">나가기</a>
+      <a href="/" class="btn">나가기</a>
     </div>
     <h2 id="room-name"></h2>
     <div class="chat-container">
@@ -34,8 +34,15 @@
       </div>
     </div>
     <canvas id="three-canvas"></canvas>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./build/three.module.js"
+        }
+      }
+    </script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="./js/index.js"></script>
-    <script src="./js/three.js"></script>
+    <script type="module" src="./js/main.js"></script>
   </body>
 </html>

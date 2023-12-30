@@ -25,6 +25,9 @@ const {userJoin, getCurrentUser, userLeave, getRoomUsers} =
 
 app.use('/css', express.static('./static/css'));
 app.use('/js', express.static('./static/js'));
+app.use('/models', express.static('./static/js/models'));
+app.use('/build', express.static('./node_modules/three/build'));
+app.use('/jsm', express.static('./node_modules/three/examples/jsm'));
 
 const Announcement = '공지';
 
@@ -42,7 +45,7 @@ app.get('/', function(request, response) {
 })
 
 app.get('/chat.html', function(request, response) {
-  const username = request.query.username || '익명';
+  const username = request.query.username;
   const room = request.query.room;
 
   fs.readFile('./static/chat.html', function(err, data) {
