@@ -20,6 +20,7 @@ const server = http.createServer(app);
 const io = socket(server);
 
 const formatMessage = require('./utils/messages');
+const formatChar = require('./utils/messages');
 const {userJoin, getCurrentUser, userLeave, getRoomUsers} =
     require('./utils/users');
 
@@ -65,13 +66,17 @@ app.get('/chat.html', function(request, response) {
 
 
 io.on('connection', socket => {
-  socket.on('joinRoom', ({username, room}) => {
+  socket.on('joinRoom', ({username, room, position}) => {
     const user = userJoin(socket.id, username, room);
     socket.join(user.room);
 
     socket.to(user.room).emit(
         'message',
         formatMessage(Announcement, `${user.username}님이 입장하셨습니다.`));
+
+    socket.emit(
+      'newCharacter',
+      formatChar(user.username, 0, 1, 30));
 
     io.to(user.room).emit(
         'roomUsers', {room: user.room, users: getRoomUsers(user.room)});
@@ -80,6 +85,11 @@ io.on('connection', socket => {
   socket.on('chatMessage', (msg) => {
     const user = getCurrentUser(socket.id);
     io.to(user.room).emit('message', formatMessage(user.username, msg));
+  });
+
+  socket.on('myPosition', (position) => {
+    const user = getCurrentUser(socket.id);
+    io.to(user.room).emit('otherPosition', formatChar(position.username, position.x, position.y, position.z));
   });
 
   socket.on('disconnect', () => {

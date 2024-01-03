@@ -36,7 +36,6 @@ export class Player extends Stuff {
               this.actions[1] =
                   cm1.mixer.clipAction(this.modelMesh.animations[1]);
 
-              console.log(this.modelMesh.rotation);
               this.setCannonBody();
             })
 
@@ -49,19 +48,19 @@ export class Player extends Stuff {
 
   walk() {
     if (this.keyController.keys['ArrowUp']) {
-      this.z += 0.2;
+      this.z -= 0.1;
       this.cannonBody.position.set(this.x, this.y, this.z);
     }
     if (this.keyController.keys['ArrowDown']) {
-      this.z -= 0.2;
+      this.z += 0.1;
       this.cannonBody.position.set(this.x, this.y, this.z);
     }
     if (this.keyController.keys['ArrowLeft']) {
-      this.x += 0.2;
+      this.x -= 0.1;
       this.cannonBody.position.set(this.x, this.y, this.z);
     }
     if (this.keyController.keys['ArrowRight']) {
-      this.x -= 0.2;
+      this.x += 0.1;
       this.cannonBody.position.set(this.x, this.y, this.z);
     }
   }

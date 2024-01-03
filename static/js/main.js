@@ -8,6 +8,57 @@ import {cm1, cm2} from './common.js';
 import {Floor} from './Floor.js';
 import {Player} from './Player.js';
 
+const chatForm = document.getElementById('chat-form');
+const chatMessages = document.querySelector('.chat-messages');
+const roomName = document.getElementById('room-name');
+const userList = document.getElementById('users');
+
+const urlParams = new URL(window.location.href).searchParams;
+
+const username = urlParams.get('username');
+const room = urlParams.get('room');
+
+var socket = io();
+
+socket.emit('joinRoom', {username, room, position: {x:0,y:1,z:30}});
+
+socket.on('roomUsers', ({room, users}) => {
+  outputRoomName(room);
+  outputUsers(users);
+});
+
+socket.on('message', message => {
+  console.log(message);
+  outputMessage(message);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+chatForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const msg = e.target.elements.msg.value;
+  socket.emit('chatMessage', msg);
+  e.target.elements.msg.value = '';
+  e.target.elements.msg.focus();
+});
+
+function outputMessage(message) {
+  const div = document.createElement('div');
+  div.classList.add('message');
+  div.innerHTML = `
+    <p class="meta">${message.name} : ${message.x}</p>`;
+  document.querySelector('.chat-messages').appendChild(div);
+}
+
+function outputRoomName(room) {
+  roomName.innerText = room;
+}
+
+function outputUsers(users) {
+  userList.innerHTML = `
+     ${users.map(user => `<li>${user.username}</li>`).join('')}
+    `;
+}
+
 const canvas = document.querySelector('#three-canvas');
 const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -61,7 +112,7 @@ const back = new Back({
 meshs.push(back);
 
 const player = new Player({
-  name: 'player',
+  name: `${username}`,
   x: 0,
   y: 1,
   z: 30,
@@ -71,12 +122,66 @@ const player = new Player({
 });
 meshs.push(player);
 
+socket.on('newCharacter', position =>{
+  console.log(position);
+  const other = new Player({
+    name: `${position.username}`,
+    x: position.x,
+    y: position.y,
+    z: position.z,
+    rotationY: Math.PI,
+    cannonMaterial: cm1.playerMaterial,
+    mass: 30
+  });
+  meshs.push(other);
+});
+
+socket.on('otherPosition', position =>{
+  meshs.forEach(e => {
+    console.log(e.name);
+    if(e.name == position.username){
+      e.cannonBody.position.set(position.x, position.y, position.z);
+      console.log(e.cannonBody.position);
+    }
+  });
+});
+
 const clock = new THREE.Clock();
 
 function draw() {
   const delta = clock.getDelta();
 
+  const x = player.x;
+  const y = player.y;
+  const z = player.z;
   player.walk();
+  if(player.x != x){
+    const position = {
+      username,
+      x: player.x,
+      y: player.y,
+      z: player.z
+    };
+    socket.emit('myPosition', position);
+  }
+  else if(player.y != y){
+    const position = {
+      username,
+      x: player.x,
+      y: player.y,
+      z: player.z
+    };
+    socket.emit('myPosition', position);
+  }
+  else if(player.z != z){
+    const position = {
+      username,
+      x: player.x,
+      y: player.y,
+      z: player.z
+    };
+    socket.emit('myPosition', position);
+  }
 
   let cannonStepTime = 1 / 60;
   if (delta < 0.01) cannonStepTime = 1 / 120;

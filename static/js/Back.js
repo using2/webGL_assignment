@@ -24,7 +24,6 @@ export class Back extends Stuff {
               this.modelMesh.castShadow = true;
               cm1.scene.add(this.modelMesh);
 
-              console.log(this.modelMesh.rotation);
               this.setCannonBody();
             })
 

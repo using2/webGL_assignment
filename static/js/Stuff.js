@@ -38,7 +38,6 @@ export class Stuff {
     else if(this.rotationZ != 0){
       this.cannonBody.quaternion.setFromAxisAngle(new Vec3(0,0,1),this.rotationZ);
     }  
-    console.log(this.cannonBody.quaternion);
     
     cm1.world.addBody(this.cannonBody);
   }
