@@ -54,9 +54,8 @@ const back = new Back({
   x: 0,
   y: 1,
   z: 0,
-  rotationX: Math.PI / 2,
-  rotationY: Math.PI,
-  cannonMaterial: cm1.playerMaterial,
+  rotationX: -Math.PI/2,
+  cannonMaterial: cm1.defaultMaterial,
   mass: 30
 });
 meshs.push(back);
@@ -65,7 +64,8 @@ const player = new Player({
   name: 'player',
   x: 0,
   y: 1,
-  z: -30,
+  z: 30,
+  rotationY: Math.PI,
   cannonMaterial: cm1.playerMaterial,
   mass: 30
 });

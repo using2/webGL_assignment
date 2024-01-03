@@ -48,23 +48,20 @@ export class Player extends Stuff {
   }
 
   walk() {
-    if (this.keyController.keys['KeyW'] || this.keyController.keys['ArrowUp']) {
-      this.z += 0.5;
+    if (this.keyController.keys['ArrowUp']) {
+      this.z += 0.2;
       this.cannonBody.position.set(this.x, this.y, this.z);
     }
-    if (this.keyController.keys['KeyS'] ||
-        this.keyController.keys['ArrowDown']) {
-      this.z -= 0.5;
+    if (this.keyController.keys['ArrowDown']) {
+      this.z -= 0.2;
       this.cannonBody.position.set(this.x, this.y, this.z);
     }
-    if (this.keyController.keys['KeyA'] ||
-        this.keyController.keys['ArrowLeft']) {
-      this.x += 0.5;
+    if (this.keyController.keys['ArrowLeft']) {
+      this.x += 0.2;
       this.cannonBody.position.set(this.x, this.y, this.z);
     }
-    if (this.keyController.keys['KeyD'] ||
-        this.keyController.keys['ArrowRight']) {
-      this.x -= 0.5;
+    if (this.keyController.keys['ArrowRight']) {
+      this.x -= 0.2;
       this.cannonBody.position.set(this.x, this.y, this.z);
     }
   }

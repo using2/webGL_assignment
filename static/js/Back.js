@@ -20,12 +20,12 @@ export class Back extends Stuff {
 
               this.modelMesh = glb.scene.children[0];
               this.modelMesh.position.set(this.x, this.y, this.z);
-              this.modelMesh.rotation.set(
-                  this.rotationX, this.rotationY, this.rotationZ);
+              this.modelMesh.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
               this.modelMesh.castShadow = true;
               cm1.scene.add(this.modelMesh);
 
               console.log(this.modelMesh.rotation);
+              this.setCannonBody();
             })
 
             this.mesh = new Mesh(this.geometry, this.material);
