@@ -27,38 +27,6 @@ socket.on('roomUsers', ({room, users}) => {
   outputUsers(users);
 });
 
-socket.on('message', message => {
-  console.log(message);
-  outputMessage(message);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
-chatForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const msg = e.target.elements.msg.value;
-  socket.emit('chatMessage', msg);
-  e.target.elements.msg.value = '';
-  e.target.elements.msg.focus();
-});
-
-function outputMessage(message) {
-  const div = document.createElement('div');
-  div.classList.add('message');
-  div.innerHTML = `
-    <p class="meta">${message.name} : ${message.x}</p>`;
-  document.querySelector('.chat-messages').appendChild(div);
-}
-
-function outputRoomName(room) {
-  roomName.innerText = room;
-}
-
-function outputUsers(users) {
-  userList.innerHTML = `
-     ${users.map(user => `<li>${user.username}</li>`).join('')}
-    `;
-}
-
 const canvas = document.querySelector('#three-canvas');
 const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -122,10 +90,38 @@ const player = new Player({
 });
 meshs.push(player);
 
-socket.on('newCharacter', position =>{
-  console.log(position);
+socket.on('message', message => {
+  console.log(message);
+  outputMessage(message);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+chatForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const msg = e.target.elements.msg.value;
+  socket.emit('chatMessage', msg);
+  e.target.elements.msg.value = '';
+  e.target.elements.msg.focus();
+});
+
+socket.on('oldCharacter', users => {
+  users.map(user => {
+    let other = new Player({
+      name: `${user.username}`,
+      x: user.x,
+      y: user.y,
+      z: user.z,
+      rotationY: Math.PI,
+      cannonMaterial: cm1.playerMaterial,
+      mass: 30
+    });
+    meshs.push(other);
+  });
+});
+
+socket.on('newCharacter', position => {
   const other = new Player({
-    name: `${position.username}`,
+    name: `${position.name}`,
     x: position.x,
     y: position.y,
     z: position.z,
@@ -138,10 +134,8 @@ socket.on('newCharacter', position =>{
 
 socket.on('otherPosition', position =>{
   meshs.forEach(e => {
-    console.log(e.name);
-    if(e.name == position.username){
+    if(e.name == position.name){
       e.cannonBody.position.set(position.x, position.y, position.z);
-      console.log(e.cannonBody.position);
     }
   });
 });
@@ -205,6 +199,24 @@ function setSize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.render(cm1.scene, camera);
 };
+
+function outputMessage(message) {
+  const div = document.createElement('div');
+  div.classList.add('message');
+  div.innerHTML = `
+    <p class="meta">${message.name} : ${message.x}</p>`;
+  document.querySelector('.chat-messages').appendChild(div);
+}
+
+function outputRoomName(room) {
+  roomName.innerText = room;
+}
+
+function outputUsers(users) {
+  userList.innerHTML = `
+     ${users.map(user => `<li>${user.username}</li>`).join('')}
+    `;
+}
 
 window.addEventListener('resize', setSize);
 
