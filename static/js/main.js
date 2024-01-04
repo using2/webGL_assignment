@@ -47,6 +47,22 @@ cm1.scene.add(camera);
 const light = new THREE.AmbientLight('white', 2);
 cm1.scene.add(light);
 
+const shadowLight = new THREE.DirectionalLight(0xffffff, 0.2);
+shadowLight.position.set(200, 500, 200);
+shadowLight.target.position.set(0, 0, 0);
+        
+cm1.scene.add(shadowLight);
+cm1.scene.add(shadowLight.target);
+
+shadowLight.castShadow = true;
+shadowLight.shadow.mapSize.width = 1024;
+shadowLight.shadow.mapSize.height = 1024;
+shadowLight.shadow.camera.top = shadowLight.shadow.camera.right = 700;
+shadowLight.shadow.camera.bottom = shadowLight.shadow.camera.left = -700;
+shadowLight.shadow.camera.near = 100;
+shadowLight.shadow.camera.far = 900;
+shadowLight.shadow.radius = 5;
+
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 

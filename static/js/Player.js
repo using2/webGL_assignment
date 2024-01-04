@@ -47,21 +47,26 @@ export class Player extends Stuff {
   }
 
   walk() {
-    if (this.keyController.keys['ArrowUp']) {
-      this.z -= 0.1;
-      this.cannonBody.position.set(this.x, this.y, this.z);
-    }
-    if (this.keyController.keys['ArrowDown']) {
-      this.z += 0.1;
-      this.cannonBody.position.set(this.x, this.y, this.z);
-    }
-    if (this.keyController.keys['ArrowLeft']) {
-      this.x -= 0.1;
-      this.cannonBody.position.set(this.x, this.y, this.z);
-    }
-    if (this.keyController.keys['ArrowRight']) {
-      this.x += 0.1;
-      this.cannonBody.position.set(this.x, this.y, this.z);
+    if(this.keyController.keys['ArrowUp'] || this.keyController.keys['ArrowDown'] ||
+    this.keyController.keys['ArrowLeft'] || this.keyController.keys['ArrowRight']){
+      this.actions[0].play();
+      this._currentAnimationAction = this.actions[0];
+      if (this.keyController.keys['ArrowUp']) {
+        this.z -= 0.1;
+        this.cannonBody.position.set(this.x, this.y, this.z);
+      }
+      if (this.keyController.keys['ArrowDown']) {
+        this.z += 0.1;
+        this.cannonBody.position.set(this.x, this.y, this.z);
+      }
+      if (this.keyController.keys['ArrowLeft']) {
+        this.x -= 0.1;
+        this.cannonBody.position.set(this.x, this.y, this.z);
+      }
+      if (this.keyController.keys['ArrowRight']) {
+        this.x += 0.1;
+        this.cannonBody.position.set(this.x, this.y, this.z);
+      }
     }
   }
 }
