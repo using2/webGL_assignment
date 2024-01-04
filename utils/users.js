@@ -17,17 +17,23 @@ function userLeave(id) {
   }
 }
 
-function getRoomUsers(room) {
-  return users.filter(user => user.room === room);
+function setPosition(username, x, y, z){
+  const index = users.findIndex(user => user.username === username);
+  if(index !== -1){
+    users[index].x = x;
+    users[index].y = y;
+    users[index].z = z;
+  }
 }
 
-function getCharacter(char) {
-  
+function getRoomUsers(room) {
+  return users.filter(user => user.room === room);
 }
 
 module.exports = {
   userJoin,
   getCurrentUser,
   userLeave,
-  getRoomUsers
+  getRoomUsers,
+  setPosition
 }

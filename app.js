@@ -21,7 +21,7 @@ const io = socket(server);
 
 const formatMessage = require('./utils/messages');
 const formatChar = require('./utils/messages');
-const {userJoin, getCurrentUser, userLeave, getRoomUsers} =
+const {userJoin, getCurrentUser, userLeave, getRoomUsers, setPosition} =
     require('./utils/users');
 
 app.use('/css', express.static('./static/css'));
@@ -93,7 +93,14 @@ io.on('connection', socket => {
 
   socket.on('myPosition', (position) => {
     const user = getCurrentUser(socket.id);
-    io.to(user.room).emit('otherPosition', formatChar(position.username, position.x, position.y, position.z));
+    setPosition(position.username, position.x, position.y, position.z);
+    io.to(user.room).emit(
+      'otherPosition', 
+      formatChar(position.username, position.x, position.y, position.z));
+  });
+
+  socket.on('newPosition', position => {
+    setPosition(position.username, position.x, position.y, position.z);
   });
 
   socket.on('disconnect', () => {
