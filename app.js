@@ -109,6 +109,10 @@ io.on('connection', socket => {
       io.to(user.room).emit(
           'message',
           formatMessage(Announcement, `${user.username}님이 퇴장하셨습니다.`));
+      io.to(user.room).emit(
+        'eraseCharacter',
+        user.username
+      )
     }
   });
 });

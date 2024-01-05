@@ -1,6 +1,5 @@
-import {Body, Box, Vec3, Quaternion} from 'https://cdn.skypack.dev/cannon-es';
+import {Body, Box, Vec3} from 'https://cdn.skypack.dev/cannon-es';
 import {cm1} from './common.js'
-import { RGBA_ASTC_10x10_Format } from 'three';
 
 export class Stuff {
   constructor(info = {}) {

@@ -122,17 +122,20 @@ chatForm.addEventListener('submit', (e) => {
 
 socket.on('oldCharacter', users => {
   users.map(user => {
-    let other = new Player({
-      name: `${user.username}`,
-      x: user.x,
-      y: user.y,
-      z: user.z,
-      rotationY: Math.PI,
-      cannonMaterial: cm1.playerMaterial,
-      mass: 30
-    });
-    meshs.push(other);
+    if(username != user.username){
+      let other = new Player({
+        name: `${user.username}`,
+        x: user.x,
+        y: user.y,
+        z: user.z,
+        rotationY: Math.PI,
+        cannonMaterial: cm1.playerMaterial,
+        mass: 30
+      });
+      meshs.push(other);
+    }
   });
+  console.log(cm1.scene.children);
 });
 
 socket.on('newCharacter', position => {
@@ -146,6 +149,7 @@ socket.on('newCharacter', position => {
     mass: 30
   });
   meshs.push(other);
+  console.log(cm1.scene.children);
 });
 
 socket.on('otherPosition', position =>{
@@ -154,6 +158,22 @@ socket.on('otherPosition', position =>{
       e.cannonBody.position.set(position.x, position.y, position.z);
     }
   });
+});
+
+socket.on('eraseCharacter', username => {
+  meshs.forEach(e => {
+    if(e.name == username){
+      if (e.cannonBody) {
+        cm1.world.removeBody(e.cannonBody);
+      }
+      var selectedObject = cm1.scene.getObjectByName(e.mesh.name);
+      cm1.scene.remove(selectedObject);
+      cm1.scene.remove(e.modelMesh);
+      meshs = meshs.filter((element) => element.name !== username);
+      draw();
+    }
+  })
+  console.log(meshs);
 });
 
 const clock = new THREE.Clock();

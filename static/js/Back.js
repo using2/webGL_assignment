@@ -22,6 +22,7 @@ export class Back extends Stuff {
               this.modelMesh.position.set(this.x, this.y, this.z);
               this.modelMesh.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
               this.modelMesh.castShadow = true;
+              this.modelMesh.name = this.name;
               cm1.scene.add(this.modelMesh);
 
               this.setCannonBody();
@@ -31,6 +32,7 @@ export class Back extends Stuff {
     this.mesh.position.set(this.x, this.y, this.z);
     this.mesh.castShadow = true;
     this.mesh.receiveShadow = true;
+    this.mesh.name = this.name;
     cm1.scene.add(this.mesh);
   }
 }

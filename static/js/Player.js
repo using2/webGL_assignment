@@ -26,6 +26,7 @@ export class Player extends Stuff {
                   this.rotationX, this.rotationY, this.rotationZ);
               this.modelMesh.castShadow = true;
               this.modelMesh.scale.set(0.02, 0.02, 0.02);
+              this.modelMesh.name = this.name;
               cm1.scene.add(this.modelMesh);
 
               this.modelMesh.animations = glb.animations;
@@ -43,6 +44,7 @@ export class Player extends Stuff {
     this.mesh.position.set(this.x, this.y, this.z);
     this.mesh.castShadow = true;
     this.mesh.receiveShadow = true;
+    this.mesh.name = this.name;
     cm1.scene.add(this.mesh);
   }
 
