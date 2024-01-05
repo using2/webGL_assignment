@@ -7,7 +7,7 @@
   </head>
   <body>
     <div class="exit-button-container">
-      <a href="/" class="btn">나가기</a>
+      <button class="btn" id="exit-button">나가기</button>
     </div>
     <h2 id="room-name"></h2>
     <div class="chat-container">
@@ -42,7 +42,12 @@
       }
     </script>
     <script src="/socket.io/socket.io.js"></script>
-    <!-- <script type="module" src="./js/index.js"></script> -->
     <script type="module" src="./js/main.js"></script>
+    <script>
+      document.getElementById('exit-button').addEventListener('click', function(event) {
+        event.preventDefault();
+        window.history.back();
+      });
+    </script>
   </body>
 </html>
