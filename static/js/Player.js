@@ -1,13 +1,11 @@
 import {AnimationMixer, Mesh} from 'three';
 
 import {cm1} from './common.js';
-import {KeyController} from './KeyController.js';
 import {Stuff} from './Stuff.js';
 
 export class Player extends Stuff {
   constructor(info) {
     super(info);
-    this.keyController = new KeyController();
 
     cm1.gltfLoader
         .load(
@@ -48,27 +46,38 @@ export class Player extends Stuff {
     cm1.scene.add(this.mesh);
   }
 
+  keys = [];
+
   walk() {
-    if(this.keyController.keys['ArrowUp'] || this.keyController.keys['ArrowDown'] ||
-    this.keyController.keys['ArrowLeft'] || this.keyController.keys['ArrowRight']){
-      this.actions[0].play();
-      this._currentAnimationAction = this.actions[0];
-      if (this.keyController.keys['ArrowUp']) {
-        this.z -= 0.1;
+    window.addEventListener('keydown', e => {
+      this.keys[e.code] = true;
+      console.log(e.code + ' 누름');
+      if (
+        this.keys['ArrowUp'] ||
+        this.keys['ArrowDown'] ||
+        this.keys['ArrowLeft'] ||
+        this.keys['ArrowRight']
+      ) {
+        if (this.keys['ArrowUp']) {
+          this.z -= 0.01;
+        }
+        if (this.keys['ArrowDown']) {
+          this.z += 0.01;
+        }
+        if (this.keys['ArrowLeft']) {
+          this.x -= 0.005;
+        }
+        if (this.keys['ArrowRight']) {
+          this.x += 0.005;
+        }
+  
         this.cannonBody.position.set(this.x, this.y, this.z);
       }
-      if (this.keyController.keys['ArrowDown']) {
-        this.z += 0.1;
-        this.cannonBody.position.set(this.x, this.y, this.z);
-      }
-      if (this.keyController.keys['ArrowLeft']) {
-        this.x -= 0.1;
-        this.cannonBody.position.set(this.x, this.y, this.z);
-      }
-      if (this.keyController.keys['ArrowRight']) {
-        this.x += 0.1;
-        this.cannonBody.position.set(this.x, this.y, this.z);
-      }
-    }
+    })
+
+    window.addEventListener('keyup', e => {
+      delete this.keys[e.code];
+      console.log(e.code + ' 땜');
+    })
   }
 }

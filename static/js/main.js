@@ -135,7 +135,6 @@ socket.on('oldCharacter', users => {
       meshs.push(other);
     }
   });
-  console.log(cm1.scene.children);
 });
 
 socket.on('newCharacter', position => {
@@ -224,6 +223,10 @@ function draw() {
       item.modelMesh.quaternion.copy(item.cannonBody.quaternion);
     }
   });
+
+  if (player.mixer) {
+    player.mixer.update(clock.getDelta());
+  }
 
   renderer.render(cm1.scene, camera);
   renderer.setAnimationLoop(draw);
