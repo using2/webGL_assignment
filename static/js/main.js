@@ -148,12 +148,18 @@ socket.on('newCharacter', position => {
     mass: 30
   });
   meshs.push(other);
-  console.log(cm1.scene.children);
 });
 
 socket.on('otherPosition', position =>{
   meshs.forEach(e => {
     if(e.name == position.name){
+      let previousAnimationAction = e._currentAnimationAction;
+      e._currentAnimationAction = 1;
+      
+      if (previousAnimationAction !== e._currentAnimationAction) {
+        e.actions[previousAnimationAction].fadeOut(0.5);
+        e.actions[e._currentAnimationAction].reset().fadeIn(0.5).play();
+      }
       e.cannonBody.position.set(position.x, position.y, position.z);
     }
   });
