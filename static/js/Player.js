@@ -1,4 +1,5 @@
-import { AnimationMixer, Mesh } from 'three';
+import { AnimationMixer, Mesh, Vector3} from 'three';
+import { Vec3 } from 'https://cdn.skypack.dev/cannon-es';
 import { cm1 } from './common.js';
 import { Stuff } from './Stuff.js';
 
@@ -25,7 +26,6 @@ export class Player extends Stuff {
 
         this.modelMesh.animations = glb.animations;
         cm1.mixer = new AnimationMixer(this.modelMesh);
-        console.log(this.modelMesh.animations);
         this.actions = [];
         this.actions[0] = cm1.mixer.clipAction(this.modelMesh.animations[3]);
         this.actions[1] = cm1.mixer.clipAction(this.modelMesh.animations[4]);
@@ -51,15 +51,14 @@ export class Player extends Stuff {
 
   walk() {
     let previousAnimationAction = this._currentAnimationAction;
+    let rotation = Math.PI;
 
     window.addEventListener('keydown', (e) => {
       this.keys[e.code] = true;
-      console.log(e.code + ' 누름');
     });
 
     window.addEventListener('keyup', (e) => {
       delete this.keys[e.code];
-      console.log(e.code + ' 땜');
     });
 
     if (
@@ -76,6 +75,7 @@ export class Player extends Stuff {
           this.z -= 0.06;
           this._currentAnimationAction = 1;
         }
+        rotation = Math.PI;
       }
       if (this.keys['ArrowDown']) {
         if(this.keys['ShiftLeft'] || this.keys['ShiftRight']){
@@ -85,6 +85,7 @@ export class Player extends Stuff {
           this.z += 0.06;
           this._currentAnimationAction = 1;
         }
+        rotation = 0;
       }
       if (this.keys['ArrowLeft']) {
         if(this.keys['ShiftLeft'] || this.keys['ShiftRight']){
@@ -94,6 +95,7 @@ export class Player extends Stuff {
           this.x -= 0.06;
           this._currentAnimationAction = 1;
         }
+        rotation = -Math.PI / 2;
       }
       if (this.keys['ArrowRight']) {
         if(this.keys['ShiftLeft'] || this.keys['ShiftRight']){
@@ -103,8 +105,11 @@ export class Player extends Stuff {
           this.x += 0.06;
           this._currentAnimationAction = 1;
         }
+        rotation = Math.PI / 2;
       }
 
+      this.rotationY = rotation;
+      this.cannonBody.quaternion.setFromAxisAngle(new Vec3(0,1,0),this.rotationY);
       this.cannonBody.position.set(this.x, this.y, this.z);
     } else {
       this._currentAnimationAction = 0;
