@@ -224,8 +224,8 @@ function draw() {
     }
   });
 
-  if (player.mixer) {
-    player.mixer.update(clock.getDelta());
+  if(cm1.mixer){
+    cm1.mixer.update(delta);
   }
 
   renderer.render(cm1.scene, camera);
