@@ -67,7 +67,7 @@ app.get('/chat.html', function(request, response) {
 
 io.on('connection', socket => {
   socket.on('joinRoom', ({username, room}) => {
-    const user = userJoin(socket.id, username, room, 0, 1, 30, 0, 0);
+    const user = userJoin(socket.id, username, room, 0, 1, 30, Math.PI, 0);
     socket.join(user.room);
 
     socket.to(user.room).emit(
@@ -80,7 +80,7 @@ io.on('connection', socket => {
 
     socket.to(user.room).emit(
       'newCharacter',
-      formatChar(user.username, 0, 1, 30, 0, 0));
+      formatChar(user.username, 0, 1, 30, Math.PI, 0));
 
     io.to(user.room).emit(
         'roomUsers', {room: user.room, users: getRoomUsers(user.room)});
