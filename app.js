@@ -21,8 +21,8 @@ const io = socket(server);
 
 const formatMessage = require('./utils/messages');
 const formatChar = require('./utils/messages');
-const {userJoin, getCurrentUser, userLeave, getRoomUsers, setPosition, setAction} =
-    require('./utils/users');
+const {userJoin, getCurrentUser, userLeave, getRoomUsers,
+  setPosition, setAction, setAngle} = require('./utils/users');
 
 app.use('/css', express.static('./static/css'));
 app.use('/js', express.static('./static/js'));
@@ -67,7 +67,7 @@ app.get('/chat.html', function(request, response) {
 
 io.on('connection', socket => {
   socket.on('joinRoom', ({username, room}) => {
-    const user = userJoin(socket.id, username, room, 0, 1, 30, 0);
+    const user = userJoin(socket.id, username, room, 0, 1, 30, 0, 0);
     socket.join(user.room);
 
     socket.to(user.room).emit(
@@ -80,7 +80,7 @@ io.on('connection', socket => {
 
     socket.to(user.room).emit(
       'newCharacter',
-      formatChar(user.username, 0, 1, 30, 0));
+      formatChar(user.username, 0, 1, 30, 0, 0));
 
     io.to(user.room).emit(
         'roomUsers', {room: user.room, users: getRoomUsers(user.room)});
@@ -93,16 +93,24 @@ io.on('connection', socket => {
 
   socket.on('myPosition', (position) => {
     const user = getCurrentUser(socket.id);
-    setPosition(position.username, position.x, position.y, position.z);
-    io.to(user.room).emit(
-      'otherPosition', 
-      formatChar(position.username, position.x, position.y, position.z, user.action),
-      position.newAction
+
+    if (user) {
+      setPosition(user.username, position.x, position.y, position.z);
+
+      io.to(user.room).emit(
+        'otherPosition', 
+        formatChar(user.username, position.x, position.y, position.z, position.angle, user.action),
+        position.newAction
       );
+    }
   });
 
   socket.on('newAnimation', (data) => {
     setAction(data.username, data.action);
+  });
+
+  socket.on('newAngle', (data) => {
+    setAngle(data.username, data.angle);
   });
 
   socket.on('disconnect', () => {

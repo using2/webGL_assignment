@@ -1,4 +1,5 @@
 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
+import { Quaternion as CannonQuaternion } from 'https://cdn.skypack.dev/cannon-es';
 import * as THREE from 'three';
 
 import {OrbitControls} from '../jsm/controls/OrbitControls.js';
@@ -157,41 +158,29 @@ socket.on('newCharacter', position => {
 });
 
 socket.on('otherPosition', (position, action) =>{
-  if(position.name !== username) {
-    meshs.forEach(e => {
-      if(e.name == position.name){    
-        if(position.action !== action){
-          e.actions[position.action].fadeOut(0.5);
-          e.actions[action].reset().fadeIn(0.5).play();
-          const newInfo = {
-            username: position.name,
-            action
-          }
-          socket.emit('newAnimation', newInfo);
-        } 
-  
-        if(e.cannonBody){
-          e.cannonBody.position.set(position.x, position.y, position.z);
+  meshs.forEach(e => {
+    if(e.name == position.name){    
+      if(position.action !== action){
+        console.log(e);
+        e.actions[position.action].fadeOut(0.5);
+        e.actions[action].reset().fadeIn(0.5).play();
+        const newInfo = {
+          username: position.name,
+          action
         }
+        socket.emit('newAnimation', newInfo);
+      } 
+
+      if(e.cannonBody){
+        e.cannonBody.position.set(position.x, position.y, position.z);
+
+        let quaternion = new CannonQuaternion();
+        quaternion.setFromEuler(0, position.angle, 0, 'XYZ');
+        e.cannonBody.quaternion.copy(quaternion);
       }
-    });
-  }
+    }
+  });
 });
-
-// socket.on('otherAnimationAction', data => {
-//   meshs.forEach(e => {
-//     if (e.name === data.username) {
-//       let previousAnimationAction = data.preAction;
-
-//       if (previousAnimationAction !== e._currentAnimationAction) {
-//         console.log(previousAnimationAction);
-//         console.log(e._currentAnimationAction);
-//         e.actions[previousAnimationAction].fadeOut(0.5);
-//         e.actions[e._currentAnimationAction].reset().fadeIn(0.5).play();
-//       }
-//     }
-//   });
-// });
 
 socket.on('eraseCharacter', username => {
   meshs.forEach(e => {

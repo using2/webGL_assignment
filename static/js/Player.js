@@ -1,5 +1,4 @@
-import { AnimationMixer, Mesh, Vector3, Quaternion } from 'three';
-import { Quaternion as CannonQuaternion } from 'https://cdn.skypack.dev/cannon-es';
+import { AnimationMixer, Mesh, Vector3 } from 'three';
 import { cm1, cm3 } from './common.js';
 import { Stuff } from './Stuff.js';
 
@@ -48,19 +47,12 @@ export class Player extends Stuff {
     this.mesh.receiveShadow = true;
     this.mesh.name = this.name;
     cm1.scene.add(this.mesh);
+
+    this.angle = Math.PI;
   }
 
   keys = [];
   _currentAnimationAction = 0;
-
-  updatePosition(data) {
-    this.x = data.x;
-    this.y = data.y;
-    this.z = data.z;
-
-    this.modelMesh.position.set(this.x, this.y, this.z);
-    this.cannonBody.position.set(this.x, this.y, this.z);
-  }
 
   sendPosition() {
     const position = {
@@ -68,17 +60,10 @@ export class Player extends Stuff {
       x: this.x,
       y: this.y,
       z: this.z,
+      angle: this.angle,
       newAction: this._currentAnimationAction
     };
     cm3.socket.emit('myPosition', position);
-  }
-
-  sendAnimation(action) {
-    const data = {
-      username: this.name,
-      action
-    };
-    cm3.socket.emit('animationAction', data);
   }
 
   walk() {
@@ -119,12 +104,8 @@ export class Player extends Stuff {
       moveDirection.normalize();
 
       if (moveDirection.length() > 0) {
-        let angle = Math.atan2(moveDirection.x, moveDirection.z);
-        this.modelMesh.rotation.y = angle;
-
-        let quaternion = new CannonQuaternion();
-        quaternion.setFromEuler(0, angle, 0, 'XYZ');
-        this.cannonBody.quaternion.copy(quaternion);
+        this.angle = Math.atan2(moveDirection.x, moveDirection.z);
+        this.modelMesh.rotation.y = this.angle;
       }
 
       let speed = 0.06;
@@ -135,19 +116,12 @@ export class Player extends Stuff {
 
       this.z += moveDirection.z * speed;
       this.x += moveDirection.x * speed;
-
-      this.cannonBody.position.set(this.x, this.y, this.z);
     } else {
       this._currentAnimationAction = 0;
     }
 
     if(this.cannonBody){
       this.sendPosition(previousAnimationAction);
-    }
-
-    if (previousAnimationAction !== this._currentAnimationAction) {
-      this.actions[previousAnimationAction].fadeOut(0.5);
-      this.actions[this._currentAnimationAction].reset().fadeIn(0.5).play();
     }
   }
 }
