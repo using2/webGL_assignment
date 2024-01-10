@@ -5,7 +5,6 @@ import {GLTFLoader} from '../jsm/loaders/GLTFLoader.js';
 export const cm1 = {
   scene: new Scene(),
   gltfLoader: new GLTFLoader(),
-  mixer: undefined,
   clock: new Clock(),
 
   // cannon

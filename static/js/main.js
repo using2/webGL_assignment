@@ -159,9 +159,8 @@ socket.on('newCharacter', position => {
 
 socket.on('otherPosition', (position, action) =>{
   meshs.forEach(e => {
-    if(e.name == position.name){    
+    if(e.name == position.name){  
       if(position.action !== action){
-        console.log(e);
         e.actions[position.action].fadeOut(0.5);
         e.actions[action].reset().fadeIn(0.5).play();
         const newInfo = {
@@ -203,9 +202,6 @@ const clock = new THREE.Clock();
 function draw() {
   const delta = clock.getDelta();
 
-  const x = player.x;
-  const y = player.y;
-  const z = player.z;
   player.walk();
 
   let cannonStepTime = 1 / 60;
@@ -218,11 +214,10 @@ function draw() {
       item.modelMesh.position.copy(item.cannonBody.position);
       item.modelMesh.quaternion.copy(item.cannonBody.quaternion);
     }
+    if(item.mixer){
+      item.mixer.update(delta);
+    }
   });
-
-  if(cm1.mixer){
-    cm1.mixer.update(delta);
-  }
 
   renderer.render(cm1.scene, camera);
   renderer.setAnimationLoop(draw);

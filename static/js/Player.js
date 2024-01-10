@@ -28,13 +28,13 @@ export class Player extends Stuff {
         cm1.scene.add(this.modelMesh);
 
         this.modelMesh.animations = glb.animations;
-        cm1.mixer = new AnimationMixer(this.modelMesh);
+        this.mixer = new AnimationMixer(this.modelMesh);
         this.actions = [];
-        this.actions[0] = cm1.mixer.clipAction(this.modelMesh.animations[3]);
-        this.actions[1] = cm1.mixer.clipAction(this.modelMesh.animations[4]);
-        this.actions[2] = cm1.mixer.clipAction(this.modelMesh.animations[1]);
-        this.actions[3] = cm1.mixer.clipAction(this.modelMesh.animations[5]);
-        this.actions[4] = cm1.mixer.clipAction(this.modelMesh.animations[2]);
+        this.actions[0] = this.mixer.clipAction(this.modelMesh.animations[3]);
+        this.actions[1] = this.mixer.clipAction(this.modelMesh.animations[4]);
+        this.actions[2] = this.mixer.clipAction(this.modelMesh.animations[1]);
+        this.actions[3] = this.mixer.clipAction(this.modelMesh.animations[5]);
+        this.actions[4] = this.mixer.clipAction(this.modelMesh.animations[2]);
 
         this.actions[0].play();
         this.setCannonBody();
