@@ -104,7 +104,9 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', () => {
-    const user = userLeave(socket.id);
+    let user = getCurrentUser(socket.id);
+    socket.leave(user.room);
+    user = userLeave(socket.id);
     if (user) {
       io.to(user.room).emit(
           'message',
