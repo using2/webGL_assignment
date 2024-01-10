@@ -109,10 +109,10 @@ export class Player extends Stuff {
       }
 
       let speed = 0.06;
-      // if (this.keys['ShiftLeft'] || this.keys['ShiftRight']) {
-      //   speed = 0.13;
-      //   this._currentAnimationAction = 2;
-      // }
+      if (this.keys['ShiftLeft'] || this.keys['ShiftRight']) {
+        speed = 0.13;
+        this._currentAnimationAction = 2;
+      }
 
       this.z += moveDirection.z * speed;
       this.x += moveDirection.x * speed;
