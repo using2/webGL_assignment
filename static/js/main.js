@@ -39,9 +39,9 @@ cm1.scene.background = new THREE.Color(cm2.backgroundColor);
 
 const camera = new THREE.PerspectiveCamera(
     75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.x = -10;
-camera.position.y = 3;
-camera.position.z = -25;
+camera.position.x = -8;
+camera.position.y = 15;
+camera.position.z = -23;
 
 cm1.scene.add(camera);
 
@@ -218,6 +218,16 @@ function draw() {
       item.mixer.update(delta);
     }
   });
+
+  if (player.cannonBody) {
+    const playerPosition = player.cannonBody.position;
+    camera.position.x = playerPosition.x;
+    camera.position.y = playerPosition.y + 6;
+    camera.position.z = playerPosition.z + 6;
+
+    const lookAtVector = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
+    camera.lookAt(lookAtVector);
+  }
 
   renderer.render(cm1.scene, camera);
   renderer.setAnimationLoop(draw);

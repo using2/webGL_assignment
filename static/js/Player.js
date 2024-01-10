@@ -23,7 +23,7 @@ export class Player extends Stuff {
           this.rotationZ
         );
         this.modelMesh.castShadow = true;
-        this.modelMesh.scale.set(0.02, 0.02, 0.02);
+        this.modelMesh.scale.set(0.015, 0.015, 0.015);
         this.modelMesh.name = this.name;
         cm1.scene.add(this.modelMesh);
 
