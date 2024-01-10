@@ -21,7 +21,7 @@ const io = socket(server);
 
 const formatMessage = require('./utils/messages');
 const formatChar = require('./utils/messages');
-const {userJoin, getCurrentUser, userLeave, getRoomUsers, setPosition} =
+const {userJoin, getCurrentUser, userLeave, getRoomUsers, setPosition, setAction} =
     require('./utils/users');
 
 app.use('/css', express.static('./static/css'));
@@ -67,7 +67,7 @@ app.get('/chat.html', function(request, response) {
 
 io.on('connection', socket => {
   socket.on('joinRoom', ({username, room}) => {
-    const user = userJoin(socket.id, username, room, 0, 1, 30);
+    const user = userJoin(socket.id, username, room, 0, 1, 30, 0);
     socket.join(user.room);
 
     socket.to(user.room).emit(
@@ -80,7 +80,7 @@ io.on('connection', socket => {
 
     socket.to(user.room).emit(
       'newCharacter',
-      formatChar(user.username, 0, 1, 30));
+      formatChar(user.username, 0, 1, 30, 0));
 
     io.to(user.room).emit(
         'roomUsers', {room: user.room, users: getRoomUsers(user.room)});
@@ -96,11 +96,13 @@ io.on('connection', socket => {
     setPosition(position.username, position.x, position.y, position.z);
     io.to(user.room).emit(
       'otherPosition', 
-      formatChar(position.username, position.x, position.y, position.z));
+      formatChar(position.username, position.x, position.y, position.z, user.action),
+      position.newAction
+      );
   });
 
-  socket.on('newPosition', position => {
-    setPosition(position.username, position.x, position.y, position.z);
+  socket.on('newAnimation', (data) => {
+    setAction(data.username, data.action);
   });
 
   socket.on('disconnect', () => {

@@ -1,6 +1,6 @@
 import { AnimationMixer, Mesh, Vector3, Quaternion } from 'three';
-import { Vec3, Quaternion as CannonQuaternion } from 'https://cdn.skypack.dev/cannon-es';
-import { cm1 } from './common.js';
+import { Quaternion as CannonQuaternion } from 'https://cdn.skypack.dev/cannon-es';
+import { cm1, cm3 } from './common.js';
 import { Stuff } from './Stuff.js';
 
 export class Player extends Stuff {
@@ -33,9 +33,9 @@ export class Player extends Stuff {
         this.actions = [];
         this.actions[0] = cm1.mixer.clipAction(this.modelMesh.animations[3]);
         this.actions[1] = cm1.mixer.clipAction(this.modelMesh.animations[4]);
-        // this.actions[2] = cm1.mixer.clipAction(this.modelMesh.animations[1]);
-        // this.actions[3] = cm1.mixer.clipAction(this.modelMesh.animations[5]);
-        // this.actions[4] = cm1.mixer.clipAction(this.modelMesh.animations[2]);
+        this.actions[2] = cm1.mixer.clipAction(this.modelMesh.animations[1]);
+        this.actions[3] = cm1.mixer.clipAction(this.modelMesh.animations[5]);
+        this.actions[4] = cm1.mixer.clipAction(this.modelMesh.animations[2]);
 
         this.actions[0].play();
         this.setCannonBody();
@@ -52,6 +52,34 @@ export class Player extends Stuff {
 
   keys = [];
   _currentAnimationAction = 0;
+
+  updatePosition(data) {
+    this.x = data.x;
+    this.y = data.y;
+    this.z = data.z;
+
+    this.modelMesh.position.set(this.x, this.y, this.z);
+    this.cannonBody.position.set(this.x, this.y, this.z);
+  }
+
+  sendPosition() {
+    const position = {
+      username: this.name,
+      x: this.x,
+      y: this.y,
+      z: this.z,
+      newAction: this._currentAnimationAction
+    };
+    cm3.socket.emit('myPosition', position);
+  }
+
+  sendAnimation(action) {
+    const data = {
+      username: this.name,
+      action
+    };
+    cm3.socket.emit('animationAction', data);
+  }
 
   walk() {
     let previousAnimationAction = this._currentAnimationAction;
@@ -111,6 +139,10 @@ export class Player extends Stuff {
       this.cannonBody.position.set(this.x, this.y, this.z);
     } else {
       this._currentAnimationAction = 0;
+    }
+
+    if(this.cannonBody){
+      this.sendPosition(previousAnimationAction);
     }
 
     if (previousAnimationAction !== this._currentAnimationAction) {

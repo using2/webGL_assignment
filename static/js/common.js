@@ -19,6 +19,10 @@ export const cm2 = {
   floorColor: 'lightgray',
 };
 
+export const cm3 = {
+  socket: io()
+}
+
 export const geo = {
   floor: new BoxGeometry(200, 1, 200)
 }

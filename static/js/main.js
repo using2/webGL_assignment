@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {OrbitControls} from '../jsm/controls/OrbitControls.js';
 
 import {Back} from './Back.js'
-import {cm1, cm2} from './common.js';
+import {cm1, cm2, cm3} from './common.js';
 import {Floor} from './Floor.js';
 import {Player} from './Player.js';
 
@@ -18,7 +18,7 @@ const urlParams = new URL(window.location.href).searchParams;
 const username = urlParams.get('username');
 const room = urlParams.get('room');
 
-var socket = io();
+var socket = cm3.socket;
 
 socket.emit('joinRoom', {username, room, position: {x:0,y:1,z:30}});
 
@@ -132,6 +132,9 @@ socket.on('oldCharacter', users => {
         cannonMaterial: cm1.playerMaterial,
         mass: 30
       });
+      if(other.actions){
+        other.actions[user.action].play();
+      }
       meshs.push(other);
     }
   });
@@ -147,23 +150,48 @@ socket.on('newCharacter', position => {
     cannonMaterial: cm1.playerMaterial,
     mass: 30
   });
+  if(other.actions){
+    other.actions[position.action].play();
+  }
   meshs.push(other);
 });
 
-socket.on('otherPosition', position =>{
-  meshs.forEach(e => {
-    if(e.name == position.name){
-      let previousAnimationAction = e._currentAnimationAction;
-      e._currentAnimationAction = 1;
-      
-      if (previousAnimationAction !== e._currentAnimationAction) {
-        e.actions[previousAnimationAction].fadeOut(0.5);
-        e.actions[e._currentAnimationAction].reset().fadeIn(0.5).play();
+socket.on('otherPosition', (position, action) =>{
+  if(position.name !== username) {
+    meshs.forEach(e => {
+      if(e.name == position.name){    
+        if(position.action !== action){
+          e.actions[position.action].fadeOut(0.5);
+          e.actions[action].reset().fadeIn(0.5).play();
+          const newInfo = {
+            username: position.name,
+            action
+          }
+          socket.emit('newAnimation', newInfo);
+        } 
+  
+        if(e.cannonBody){
+          e.cannonBody.position.set(position.x, position.y, position.z);
+        }
       }
-      e.cannonBody.position.set(position.x, position.y, position.z);
-    }
-  });
+    });
+  }
 });
+
+// socket.on('otherAnimationAction', data => {
+//   meshs.forEach(e => {
+//     if (e.name === data.username) {
+//       let previousAnimationAction = data.preAction;
+
+//       if (previousAnimationAction !== e._currentAnimationAction) {
+//         console.log(previousAnimationAction);
+//         console.log(e._currentAnimationAction);
+//         e.actions[previousAnimationAction].fadeOut(0.5);
+//         e.actions[e._currentAnimationAction].reset().fadeIn(0.5).play();
+//       }
+//     }
+//   });
+// });
 
 socket.on('eraseCharacter', username => {
   meshs.forEach(e => {
@@ -190,33 +218,6 @@ function draw() {
   const y = player.y;
   const z = player.z;
   player.walk();
-  if(player.x != x){
-    const position = {
-      username,
-      x: player.x,
-      y: player.y,
-      z: player.z
-    };
-    socket.emit('myPosition', position);
-  }
-  else if(player.y != y){
-    const position = {
-      username,
-      x: player.x,
-      y: player.y,
-      z: player.z
-    };
-    socket.emit('myPosition', position);
-  }
-  else if(player.z != z){
-    const position = {
-      username,
-      x: player.x,
-      y: player.y,
-      z: player.z
-    };
-    socket.emit('myPosition', position);
-  }
 
   let cannonStepTime = 1 / 60;
   if (delta < 0.01) cannonStepTime = 1 / 120;

@@ -4,9 +4,9 @@ function formatMessage(name, text) {
   }
 }
 
-function formatChar(name, x, y, z){
+function formatChar(name, x, y, z, action){
   return {
-    name, x, y, z
+    name, x, y, z, action
   }
 }
 

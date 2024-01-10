@@ -1,7 +1,7 @@
 const users = [];
 
-function userJoin(id, username, room, x, y, z) {
-  const user = {id, username, room, x, y, z};
+function userJoin(id, username, room, x, y, z, action) {
+  const user = {id, username, room, x, y, z, action};
   users.push(user);
   return user;
 }
@@ -26,6 +26,13 @@ function setPosition(username, x, y, z){
   }
 }
 
+function setAction(username, action){
+  const index = users.findIndex(user => user.username === username);
+  if(index !== -1){
+    users[index].action = action;
+  }
+}
+
 function getRoomUsers(room) {
   return users.filter(user => user.room === room);
 }
@@ -35,5 +42,6 @@ module.exports = {
   getCurrentUser,
   userLeave,
   getRoomUsers,
-  setPosition
+  setPosition,
+  setAction
 }
