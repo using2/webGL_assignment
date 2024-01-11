@@ -2,8 +2,6 @@ import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
 import { Quaternion as CannonQuaternion } from 'https://cdn.skypack.dev/cannon-es';
 import * as THREE from 'three';
 
-import {OrbitControls} from '../jsm/controls/OrbitControls.js';
-
 import {Back} from './Back.js'
 import {cm1, cm2, cm3} from './common.js';
 import {Floor} from './Floor.js';
@@ -37,13 +35,17 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 cm1.scene.background = new THREE.Color(cm2.backgroundColor);
 
-const camera = new THREE.PerspectiveCamera(
+const camera1 = new THREE.PerspectiveCamera(
     75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.x = -8;
-camera.position.y = 15;
-camera.position.z = -23;
+camera1.position.x = -8;
+camera1.position.y = 15;
+camera1.position.z = -23;
 
-cm1.scene.add(camera);
+const camera2 = new THREE.PerspectiveCamera(
+  75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+cm1.scene.add(camera1);
+cm1.scene.add(camera2);
 
 const light = new THREE.AmbientLight('white', 2);
 cm1.scene.add(light);
@@ -64,26 +66,19 @@ shadowLight.shadow.camera.near = 100;
 shadowLight.shadow.camera.far = 900;
 shadowLight.shadow.radius = 5;
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
 cm1.world.gravity.set(0, -10, 0);
 
 const defaultContactMaterial = new CANNON.ContactMaterial(
     cm1.defaultMaterial, cm1.defaultMaterial,
     {friction: 0.3, restitution: 0.2});
-const playerGlassContactMaterial = new CANNON.ContactMaterial(
-    cm1.defaultMaterial, cm1.defaultMaterial, {friction: 1, restitution: 0});
 cm1.world.defaultContactMaterial = defaultContactMaterial;
-cm1.world.addContactMaterial(playerGlassContactMaterial);
-
-const cannonWorld = new CANNON.World();
-cannonWorld.gravity.set(0, -10, 0);
-cannonWorld.broadphase = new CANNON.SAPBroadphase(cannonWorld);
-
-const floor = new Floor({name: 'floor'});
 
 let meshs = [];
+
+const floor = new Floor({
+  name: 'floor'
+});
+meshs.push(floor);
 
 const back = new Back({
   name: 'background',
@@ -92,7 +87,7 @@ const back = new Back({
   z: 0,
   rotationX: -Math.PI/2,
   cannonMaterial: cm1.defaultMaterial,
-  mass: 30
+  mass: 10
 });
 meshs.push(back);
 
@@ -129,7 +124,7 @@ socket.on('oldCharacter', users => {
         x: user.x,
         y: user.y,
         z: user.z,
-        rotationY: Math.PI,
+        rotationY: user.angle,
         cannonMaterial: cm1.playerMaterial,
         mass: 30
       });
@@ -176,6 +171,11 @@ socket.on('otherPosition', (position, action) =>{
         let quaternion = new CannonQuaternion();
         quaternion.setFromEuler(0, position.angle, 0, 'XYZ');
         e.cannonBody.quaternion.copy(quaternion);
+        const newInfo = {
+          username: position.name,
+          angle: position.angle
+        }
+        socket.emit('newAngle', newInfo);
       }
     }
   });
@@ -194,50 +194,78 @@ socket.on('eraseCharacter', username => {
       draw();
     }
   })
-  console.log(meshs);
 });
+
+const raycaster = new THREE.Raycaster();
+const raycastDirection = new THREE.Vector3(0, 0, -1);
+
+function updateCameraPosition() {
+  if(player.modelMesh){
+    player.modelMesh.visible = false;
+  }
+
+  const playerPosition = player.cannonBody.position;
+  const rotation = Math.PI + player.angle;
+
+  camera1.position.x = playerPosition.x;
+  camera1.position.y = playerPosition.y + 2.3; 
+  camera1.position.z = playerPosition.z;
+
+  camera2.position.x = playerPosition.x;
+  camera2.position.y = playerPosition.y + 0.7; 
+  camera2.position.z = playerPosition.z;
+
+  camera1.rotation.set(0, rotation, 0);
+  camera2.rotation.set(0, rotation, 0);
+}
 
 const clock = new THREE.Clock();
 
 function draw() {
   const delta = clock.getDelta();
 
-  player.walk();
+  if (player.cannonBody) {
+    updateCameraPosition();
+  }
+
+  raycaster.setFromCamera(new THREE.Vector2(0, 0), camera2);
+  raycaster.ray.direction.copy(raycastDirection);
+
+  raycaster.far = 1;
+
+  const intersects = raycaster.intersectObjects(cm1.scene.children);
+
+  player.walk(intersects);
 
   let cannonStepTime = 1 / 60;
   if (delta < 0.01) cannonStepTime = 1 / 120;
 
-  cannonWorld.step(cannonStepTime, delta, 3);
+  cm1.world.step(cannonStepTime, delta, 3);
 
   meshs.forEach(item => {
     if (item.cannonBody) {
-      item.modelMesh.position.copy(item.cannonBody.position);
-      item.modelMesh.quaternion.copy(item.cannonBody.quaternion);
+      item.mesh.position.copy(item.cannonBody.position);
+      item.mesh.quaternion.copy(item.cannonBody.quaternion);
+      
+      if(item.modelMesh){
+        item.modelMesh.position.copy(item.cannonBody.position);
+        item.modelMesh.quaternion.copy(item.cannonBody.quaternion);
+      }
     }
     if(item.mixer){
       item.mixer.update(delta);
     }
   });
 
-  if (player.cannonBody) {
-    const playerPosition = player.cannonBody.position;
-    camera.position.x = playerPosition.x;
-    camera.position.y = playerPosition.y + 6;
-    camera.position.z = playerPosition.z + 6;
-
-    const lookAtVector = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
-    camera.lookAt(lookAtVector);
-  }
-
-  renderer.render(cm1.scene, camera);
+  renderer.render(cm1.scene, camera1);
   renderer.setAnimationLoop(draw);
 }
 
 function setSize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+  camera1.aspect = window.innerWidth / window.innerHeight;
+  camera1.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.render(cm1.scene, camera);
+  renderer.render(cm1.scene, camera1);
 };
 
 function outputMessage(message) {

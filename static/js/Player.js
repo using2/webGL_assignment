@@ -6,6 +6,10 @@ export class Player extends Stuff {
   constructor(info) {
     super(info);
 
+    this.width = 1;
+    this.height = 1;
+    this.depth = 1;
+
     cm1.gltfLoader.load(
       '../models/character.glb',
       (glb) => {
@@ -66,7 +70,7 @@ export class Player extends Stuff {
     cm3.socket.emit('myPosition', position);
   }
 
-  walk() {
+  walk(intersects) {
     let previousAnimationAction = this._currentAnimationAction;
 
     window.addEventListener('keydown', (e) => {
@@ -76,7 +80,7 @@ export class Player extends Stuff {
     window.addEventListener('keyup', (e) => {
       delete this.keys[e.code];
     });
-
+    
     if (
       this.keys['ArrowUp'] ||
       this.keys['ArrowDown'] ||
@@ -114,8 +118,14 @@ export class Player extends Stuff {
         this._currentAnimationAction = 2;
       }
 
-      this.z += moveDirection.z * speed;
-      this.x += moveDirection.x * speed;
+      if(intersects.length == 0){
+        this.z += moveDirection.z * speed;
+        this.x += moveDirection.x * speed;
+      } else {
+        const pushBackDistance = 2; 
+        this.z -= moveDirection.z * speed * pushBackDistance;
+        this.x -= moveDirection.x * speed * pushBackDistance;
+      }
     } else {
       this._currentAnimationAction = 0;
     }
