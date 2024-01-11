@@ -200,22 +200,22 @@ const raycaster = new THREE.Raycaster();
 const raycastDirection = new THREE.Vector3(0, 0, -1);
 
 function updateCameraPosition() {
-  if(player.modelMesh){
-    player.modelMesh.visible = false;
-  }
+  // if(player.modelMesh){
+  //   player.modelMesh.visible = false;
+  // }
 
   const playerPosition = player.cannonBody.position;
   const rotation = Math.PI + player.angle;
 
-  camera1.position.x = playerPosition.x;
-  camera1.position.y = playerPosition.y + 2.3; 
-  camera1.position.z = playerPosition.z;
+  // camera1.position.x = playerPosition.x;
+  // camera1.position.y = playerPosition.y + 2.3; 
+  // camera1.position.z = playerPosition.z;
 
   camera2.position.x = playerPosition.x;
   camera2.position.y = playerPosition.y + 0.7; 
   camera2.position.z = playerPosition.z;
 
-  camera1.rotation.set(0, rotation, 0);
+  // camera1.rotation.set(0, rotation, 0);
   camera2.rotation.set(0, rotation, 0);
 }
 
@@ -256,6 +256,16 @@ function draw() {
       item.mixer.update(delta);
     }
   });
+
+  if (player.cannonBody) {
+    const playerPosition = player.cannonBody.position;
+    camera1.position.x = playerPosition.x;
+    camera1.position.y = playerPosition.y + 6;
+    camera1.position.z = playerPosition.z + 6;
+
+    const lookAtVector = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
+    camera1.lookAt(lookAtVector);
+  }
 
   renderer.render(cm1.scene, camera1);
   renderer.setAnimationLoop(draw);
