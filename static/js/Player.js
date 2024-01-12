@@ -130,6 +130,10 @@ export class Player extends Stuff {
       this._currentAnimationAction = 0;
     }
 
+    if (this.keys['Enter']) {
+      this._currentAnimationAction = 3;
+    }
+
     if(this.cannonBody){
       this.sendPosition(previousAnimationAction);
     }
