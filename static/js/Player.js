@@ -36,8 +36,8 @@ export class Player extends Stuff {
         this.actions = [];
         this.actions[0] = this.mixer.clipAction(this.modelMesh.animations[3]);
         this.actions[1] = this.mixer.clipAction(this.modelMesh.animations[4]);
-        this.actions[2] = this.mixer.clipAction(this.modelMesh.animations[1]);
-        this.actions[3] = this.mixer.clipAction(this.modelMesh.animations[5]);
+        this.actions[2] = this.mixer.clipAction(this.modelMesh.animations[0]);
+        this.actions[3] = this.mixer.clipAction(this.modelMesh.animations[1]);
         this.actions[4] = this.mixer.clipAction(this.modelMesh.animations[2]);
 
         this.actions[0].play();
@@ -58,6 +58,13 @@ export class Player extends Stuff {
   keys = [];
   _currentAnimationAction = 0;
 
+  event = 0;
+  //0: up: -z, down: +z, left: -x, right: +x
+  //1: up: +x, down: -x, left: -z, right: +z
+  //2: up: +z, down: -z, left: +x, right: -x
+  //3: up: -x, down: +x, left: +z, right: -z
+  sign = 0;
+
   sendPosition() {
     const position = {
       username: this.name,
@@ -74,10 +81,22 @@ export class Player extends Stuff {
     let previousAnimationAction = this._currentAnimationAction;
 
     window.addEventListener('keydown', (e) => {
+      this.event = 1;
       this.keys[e.code] = true;
     });
 
     window.addEventListener('keyup', (e) => {
+      if(this.event == 1){
+        if(e.code == 'ArrowLeft') {
+          this.sign = (this.sign + 3) % 4;
+        } else if(e.code == 'ArrowRight') {
+          this.sign = (this.sign + 1) % 4;
+        } else if(e.code == 'ArrowDown') {
+          this.sign = (this.sign + 2) % 4;
+        }
+        this.event = 0;
+      }
+      console.log(this.sign);
       delete this.keys[e.code];
     });
     
@@ -89,19 +108,51 @@ export class Player extends Stuff {
     ) {
       let moveDirection = new Vector3();
       if (this.keys['ArrowUp']) {
-        moveDirection.z = -1;
+        if(this.sign == 0){
+          moveDirection.z = -1;
+        } else if(this.sign == 1) {
+          moveDirection.x = +1;
+        } else if(this.sign == 2) {
+          moveDirection.z = +1;
+        } else if(this.sign == 3) {
+          moveDirection.x = -1;
+        }
         this._currentAnimationAction = 1;
       }
       if (this.keys['ArrowDown']) {
-        moveDirection.z = 1;
+        if(this.sign == 0){
+          moveDirection.z = +1;
+        } else if(this.sign == 1) {
+          moveDirection.x = -1;
+        } else if(this.sign == 2) {
+          moveDirection.z = -1;
+        } else if(this.sign == 3) {
+          moveDirection.x = +1;
+        }
         this._currentAnimationAction = 1;
       }
       if (this.keys['ArrowLeft']) {
-        moveDirection.x = -1;
+        if(this.sign == 0){
+          moveDirection.x = -1;
+        } else if(this.sign == 1) {
+          moveDirection.z = -1;
+        } else if(this.sign == 2) {
+          moveDirection.x = +1;
+        } else if(this.sign == 3) {
+          moveDirection.z = +1;
+        }
         this._currentAnimationAction = 1;
       }
       if (this.keys['ArrowRight']) {
-        moveDirection.x = 1;
+        if(this.sign == 0){
+          moveDirection.x = +1;
+        } else if(this.sign == 1) {
+          moveDirection.z = +1;
+        } else if(this.sign == 2) {
+          moveDirection.x = -1;
+        } else if(this.sign == 3) {
+          moveDirection.z = -1;
+        }
         this._currentAnimationAction = 1;
       }
 
