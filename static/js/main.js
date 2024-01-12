@@ -70,8 +70,16 @@ cm1.world.gravity.set(0, -10, 0);
 
 const defaultContactMaterial = new CANNON.ContactMaterial(
     cm1.defaultMaterial, cm1.defaultMaterial,
-    {friction: 0.3, restitution: 0.2});
+    {friction: 0.3, restitution: 0});
+const playerContactMaterial = new CANNON.ContactMaterial(
+    cm1.playerMaterial, cm1.playerMaterial,
+    {friction: 0.5, restitution: 0});
+const defaultPlayerContactMaterial = new CANNON.ContactMaterial(
+  cm1.defaultMaterial, cm1.playerMaterial,
+  {friction: 0, restitution: 0});
 cm1.world.defaultContactMaterial = defaultContactMaterial;
+cm1.world.addContactMaterial(playerContactMaterial);
+cm1.world.addContactMaterial(defaultPlayerContactMaterial);
 
 let meshs = [];
 
@@ -241,7 +249,7 @@ function updateCameraPosition() {
   camera1.lookAt(lookAtVector);
 
   camera2.position.x = playerPosition.x;
-  camera2.position.y = playerPosition.y + 0.7; 
+  camera2.position.y = playerPosition.y + 0.6; 
   camera2.position.z = playerPosition.z;
 
   camera1.rotation.set(0, rotation, 0);
