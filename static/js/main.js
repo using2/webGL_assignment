@@ -41,11 +41,11 @@ camera1.position.x = -8;
 camera1.position.y = 15;
 camera1.position.z = -23;
 
-const camera2 = new THREE.PerspectiveCamera(
-  75, window.innerWidth / window.innerHeight, 0.1, 1000);
+// const camera2 = new THREE.PerspectiveCamera(
+//   75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 cm1.scene.add(camera1);
-cm1.scene.add(camera2);
+// cm1.scene.add(camera2);
 
 const light = new THREE.AmbientLight('white', 2);
 cm1.scene.add(light);
@@ -95,7 +95,7 @@ const back = new Back({
   z: 0,
   rotationX: -Math.PI/2,
   cannonMaterial: cm1.defaultMaterial,
-  mass: 10
+  mass: 0
 });
 meshs.push(back);
 
@@ -248,12 +248,12 @@ function updateCameraPosition() {
   const lookAtVector = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
   camera1.lookAt(lookAtVector);
 
-  camera2.position.x = playerPosition.x;
-  camera2.position.y = playerPosition.y + 0.6; 
-  camera2.position.z = playerPosition.z;
+  // camera2.position.x = playerPosition.x;
+  // camera2.position.y = playerPosition.y + 0.6; 
+  // camera2.position.z = playerPosition.z;
 
   camera1.rotation.set(0, rotation, 0);
-  camera2.rotation.set(0, rotation, 0);
+  // camera2.rotation.set(0, rotation, 0);
 }
 
 const clock = new THREE.Clock();
@@ -265,14 +265,14 @@ function draw() {
     updateCameraPosition();
   }
 
-  raycaster.setFromCamera(new THREE.Vector2(0, 0), camera2);
-  raycaster.ray.direction.copy(raycastDirection);
+  // raycaster.setFromCamera(new THREE.Vector2(0, 0), camera2);
+  // raycaster.ray.direction.copy(raycastDirection);
 
-  raycaster.far = 1;
+  // raycaster.far = 1;
 
-  const intersects = raycaster.intersectObjects(cm1.scene.children);
+  // const intersects = raycaster.intersectObjects(cm1.scene.children);
 
-  player.walk(intersects);
+  player.walk();
 
   let cannonStepTime = 1 / 60;
   if (delta < 0.01) cannonStepTime = 1 / 120;

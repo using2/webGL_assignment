@@ -58,7 +58,6 @@ export class Player extends Stuff {
   keys = [];
   _currentAnimationAction = 0;
 
-  event = 0;
   //0: up: -z, down: +z, left: -x, right: +x
   //1: up: +x, down: -x, left: -z, right: +z
   //2: up: +z, down: -z, left: +x, right: -x
@@ -77,26 +76,14 @@ export class Player extends Stuff {
     cm3.socket.emit('myPosition', position);
   }
 
-  walk(intersects) {
+  walk() {
     let previousAnimationAction = this._currentAnimationAction;
 
     window.addEventListener('keydown', (e) => {
-      this.event = 1;
       this.keys[e.code] = true;
     });
 
     window.addEventListener('keyup', (e) => {
-      if(this.event == 1){
-        if(e.code == 'ArrowLeft') {
-          this.sign = (this.sign + 3) % 4;
-        } else if(e.code == 'ArrowRight') {
-          this.sign = (this.sign + 1) % 4;
-        } else if(e.code == 'ArrowDown') {
-          this.sign = (this.sign + 2) % 4;
-        }
-        this.event = 0;
-      }
-      console.log(this.sign);
       delete this.keys[e.code];
     });
     
@@ -107,6 +94,7 @@ export class Player extends Stuff {
       this.keys['ArrowRight']
     ) {
       let moveDirection = new Vector3();
+      
       if (this.keys['ArrowUp']) {
         if(this.sign == 0){
           moveDirection.z = -1;
@@ -158,25 +146,27 @@ export class Player extends Stuff {
 
       moveDirection.normalize();
 
+      // 지금은 계속 방향키 누르면 무한 회전한다.
+      // 뭔가 여기서 방향을 처음 바꾸고 고정, 다음에 바뀌면 다시 변경
+      // 이런 방식으로 바꾸면 될 것 같은데..
       if (moveDirection.length() > 0) {
         this.angle = Math.atan2(moveDirection.x, moveDirection.z);
         this.modelMesh.rotation.y = this.angle;
       }
+
+      if(this.angle == Math.PI) this.sign = 0;
+      else if(this.angle == Math.PI/2) this.sign = 1;
+      else if(this.angle == 0) this.sign = 2;
+      else if(this.angle == -Math.PI/2) this.sign = 3;
 
       let speed = 0.06;
       if (this.keys['ShiftLeft'] || this.keys['ShiftRight']) {
         speed = 0.13;
         this._currentAnimationAction = 2;
       }
-
-      if(intersects.length == 0){
-        this.z += moveDirection.z * speed;
-        this.x += moveDirection.x * speed;
-      } else {
-        const pushBackDistance = 2; 
-        this.z -= moveDirection.z * speed * pushBackDistance;
-        this.x -= moveDirection.x * speed * pushBackDistance;
-      }
+      
+      this.z += moveDirection.z * speed;
+      this.x += moveDirection.x * speed;
     } else {
       this._currentAnimationAction = 0;
     }
