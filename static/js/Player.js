@@ -172,7 +172,7 @@ export class Player extends Stuff {
             moveDirection.z = -1;
             moveDirection.x = +1;
           } else {
-            moveDirection.z = -1;
+            moveDirection.z = +1;
             moveDirection.x = -1;
           }
         } else if(this.sign == 2) {
