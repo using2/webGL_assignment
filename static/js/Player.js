@@ -59,10 +59,14 @@ export class Player extends Stuff {
   _currentAnimationAction = 0;
 
   //0: up: -z, down: +z, left: -x, right: +x
-  //1: up: +x, down: -x, left: -z, right: +z
-  //2: up: +z, down: -z, left: +x, right: -x
-  //3: up: -x, down: +x, left: +z, right: -z
+  //2: up: +x, down: -x, left: -z, right: +z
+  //4: up: +z, down: -z, left: +x, right: -x
+  //6: up: -x, down: +x, left: +z, right: -z
+  //1, 3, 5, 7은 대각선 방향
   sign = 0;
+  otherKeyOn = false;
+  changeSign = false;
+  diagonalDirection = 0;
 
   sendPosition() {
     const position = {
@@ -79,11 +83,31 @@ export class Player extends Stuff {
   walk() {
     let previousAnimationAction = this._currentAnimationAction;
 
+    if(this.changeSign){
+      if(this.angle == Math.PI) this.sign = 0;
+      else if(this.angle == Math.PI/2 + Math.PI/4) this.sign = 1;
+      else if(this.angle == Math.PI/2) this.sign = 2;
+      else if(this.angle == Math.PI/4) this.sign = 3;
+      else if(this.angle == 0) this.sign = 4;
+      else if(this.angle == -Math.PI/4) this.sign = 5;
+      else if(this.angle == -Math.PI/2) this.sign = 6;
+      else this.sign = 7;
+
+      this.changeSign = false;
+    }
+
     window.addEventListener('keydown', (e) => {
+      if((e.code == 'ArrowDown' && !this.keys[e.code]) ||
+      (e.code == 'ArrowLeft' && !this.keys[e.code]) ||
+      (e.code == 'ArrowRight' && !this.keys[e.code])) {
+        this.otherKeyOn = true;
+      }
+
       this.keys[e.code] = true;
     });
 
     window.addEventListener('keyup', (e) => {
+      this.changeSign = true;
       delete this.keys[e.code];
     });
     
@@ -99,24 +123,50 @@ export class Player extends Stuff {
         if(this.sign == 0){
           moveDirection.z = -1;
         } else if(this.sign == 1) {
+          moveDirection.z = -1;
           moveDirection.x = +1;
         } else if(this.sign == 2) {
-          moveDirection.z = +1;
+          moveDirection.x = +1;
         } else if(this.sign == 3) {
+          moveDirection.z = +1;
+          moveDirection.x = +1;
+        } else if(this.sign == 4) {
+          moveDirection.z = +1;
+        } else if(this.sign == 5) {
+          moveDirection.z = +1;
+          moveDirection.x = -1;
+        } else if(this.sign == 6) {
+          moveDirection.x = -1;
+        } else {
+          moveDirection.z = -1;
           moveDirection.x = -1;
         }
+
         this._currentAnimationAction = 1;
       }
       if (this.keys['ArrowDown']) {
         if(this.sign == 0){
           moveDirection.z = +1;
         } else if(this.sign == 1) {
+          moveDirection.z = +1;
           moveDirection.x = -1;
         } else if(this.sign == 2) {
-          moveDirection.z = -1;
+          moveDirection.x = -1;
         } else if(this.sign == 3) {
+          moveDirection.z = -1;
+          moveDirection.x = -1;
+        } else if(this.sign == 4) {
+          moveDirection.z = -1;
+        } else if(this.sign == 5) {
+          moveDirection.z = -1;
+          moveDirection.x = +1;
+        } else if(this.sign == 6) {
+          moveDirection.x = +1;
+        } else {
+          moveDirection.z = +1;
           moveDirection.x = +1;
         }
+
         this._currentAnimationAction = 1;
       }
       if (this.keys['ArrowLeft']) {
@@ -125,39 +175,54 @@ export class Player extends Stuff {
         } else if(this.sign == 1) {
           moveDirection.z = -1;
         } else if(this.sign == 2) {
-          moveDirection.x = +1;
+          moveDirection.z = -1;
         } else if(this.sign == 3) {
+          moveDirection.x = +1;
+        } else if(this.sign == 4) {
+          moveDirection.x = +1;
+        } else if(this.sign == 5) {
           moveDirection.z = +1;
+        } else if(this.sign == 6) {
+          moveDirection.z = +1;
+        } else {
+          moveDirection.x = -1;
         }
+
         this._currentAnimationAction = 1;
       }
       if (this.keys['ArrowRight']) {
         if(this.sign == 0){
           moveDirection.x = +1;
         } else if(this.sign == 1) {
-          moveDirection.z = +1;
+          moveDirection.x = +1;
         } else if(this.sign == 2) {
-          moveDirection.x = -1;
+          moveDirection.z = +1;
         } else if(this.sign == 3) {
+          moveDirection.z = +1;
+        } else if(this.sign == 4) {
+          moveDirection.x = -1;
+        } else if(this.sign == 5) {
+          moveDirection.x = -1;
+        } else if(this.sign == 6) {
+          moveDirection.z = -1;
+        } else {
           moveDirection.z = -1;
         }
+
         this._currentAnimationAction = 1;
       }
 
       moveDirection.normalize();
 
-      // 지금은 계속 방향키 누르면 무한 회전한다.
-      // 뭔가 여기서 방향을 처음 바꾸고 고정, 다음에 바뀌면 다시 변경
-      // 이런 방식으로 바꾸면 될 것 같은데..
       if (moveDirection.length() > 0) {
-        this.angle = Math.atan2(moveDirection.x, moveDirection.z);
-        this.modelMesh.rotation.y = this.angle;
-      }
+        if(this.otherKeyOn){
+          this.angle = Math.atan2(moveDirection.x, moveDirection.z);
+          this.modelMesh.rotation.y = this.angle;
 
-      if(this.angle == Math.PI) this.sign = 0;
-      else if(this.angle == Math.PI/2) this.sign = 1;
-      else if(this.angle == 0) this.sign = 2;
-      else if(this.angle == -Math.PI/2) this.sign = 3;
+          console.log(this.angle);
+          this.otherKeyOn = false;
+        }
+      }
 
       let speed = 0.06;
       if (this.keys['ShiftLeft'] || this.keys['ShiftRight']) {
