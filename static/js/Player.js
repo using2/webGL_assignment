@@ -1,4 +1,4 @@
-import { AnimationMixer, Mesh, Vector3 } from 'three';
+import { AnimationMixer, Mesh, TubeGeometry, Vector3 } from 'three';
 import { cm1, cm3 } from './common.js';
 import { Stuff } from './Stuff.js';
 
@@ -66,7 +66,6 @@ export class Player extends Stuff {
   sign = 0;
   otherKeyOn = false;
   changeSign = false;
-  diagonalDirection = 0;
 
   sendPosition() {
     const position = {
@@ -80,9 +79,7 @@ export class Player extends Stuff {
     cm3.socket.emit('myPosition', position);
   }
 
-  walk() {
-    let previousAnimationAction = this._currentAnimationAction;
-
+  ChangeSign() {
     if(this.changeSign){
       if(this.angle == Math.PI) this.sign = 0;
       else if(this.angle == Math.PI/2 + Math.PI/4) this.sign = 1;
@@ -95,6 +92,18 @@ export class Player extends Stuff {
 
       this.changeSign = false;
     }
+  }
+
+  walk() {
+    // 일단 대각선 방향이동에 대한 처리까지 이전방식과 똑같이 수행해두었으나
+    // 수정할 부분이 꽤 있음
+    // angle을 통해서 sign을 결정하는데 
+    // 대각선 방향에 대한 angle을 통해 sign 처리를 해두지 않으면
+    // 대각선 방향일 때 이상하게 움직임
+    // ex) 키를 누르고 난 후, 이전 방향에 대한 좌우 결정을 한다던가..
+    this.ChangeSign();
+
+    let previousAnimationAction = this._currentAnimationAction;
 
     window.addEventListener('keydown', (e) => {
       if((e.code == 'ArrowDown' && !this.keys[e.code]) ||
@@ -143,33 +152,78 @@ export class Player extends Stuff {
         }
 
         this._currentAnimationAction = 1;
+
+        if(this.keys['ArrowLeft'] ||
+        this.keys['ArrowRight']){
+          this.changeSign = true;
+          this.ChangeSign();
+        }
       }
       if (this.keys['ArrowDown']) {
+        // 뒤로가기 누른 상태에서 대각선 방향 이동이랑
+        // 대각선 이미 바라보고 있는 상태에서 이동이랑
+        // 서로 다르게 처리가 필요
+        // 안하면 하나에서 엉뚱한 방향으로 이동함
         if(this.sign == 0){
           moveDirection.z = +1;
         } else if(this.sign == 1) {
-          moveDirection.z = +1;
-          moveDirection.x = -1;
+          if(this.keys['ArrowLeft'] ||
+          this.keys['ArrowRight']) {
+            moveDirection.z = -1;
+            moveDirection.x = +1;
+          } else {
+            moveDirection.z = -1;
+            moveDirection.x = -1;
+          }
         } else if(this.sign == 2) {
           moveDirection.x = -1;
         } else if(this.sign == 3) {
-          moveDirection.z = -1;
-          moveDirection.x = -1;
+          if(this.keys['ArrowLeft'] ||
+          this.keys['ArrowRight']) {
+            moveDirection.z = +1;
+            moveDirection.x = +1;
+          } else {
+            moveDirection.z = -1;
+            moveDirection.x = -1;
+          }
         } else if(this.sign == 4) {
           moveDirection.z = -1;
         } else if(this.sign == 5) {
-          moveDirection.z = -1;
-          moveDirection.x = +1;
+          if(this.keys['ArrowLeft'] ||
+          this.keys['ArrowRight']) {
+            moveDirection.z = +1;
+            moveDirection.x = +1;
+          } else {
+            moveDirection.z = -1;
+            moveDirection.x = +1;
+          }
         } else if(this.sign == 6) {
           moveDirection.x = +1;
         } else {
-          moveDirection.z = +1;
-          moveDirection.x = +1;
+          if(this.keys['ArrowLeft'] ||
+          this.keys['ArrowRight']) {
+            moveDirection.z = -1;
+            moveDirection.x = -1;
+          } else {
+            moveDirection.z = +1;
+            moveDirection.x = +1;
+          }
         }
 
         this._currentAnimationAction = 1;
+
+        if(this.keys['ArrowLeft'] ||
+        this.keys['ArrowRight']){
+          this.changeSign = true;
+          this.ChangeSign();
+        }
       }
       if (this.keys['ArrowLeft']) {
+        // 대각선 방향으로 이동중일 때에 
+        // 좌우 이동을 어떤 방향으로 갈 것이냐 생각 필요함
+        // 그냥 90도 이동할 경우 직선->대각선 변경 후
+        // 대각선->직선으로 돌아올 방법이 있나..?
+        // 좀 더 생각해보고 수정해야할듯..?
         if(this.sign == 0){
           moveDirection.x = -1;
         } else if(this.sign == 1) {
@@ -189,6 +243,12 @@ export class Player extends Stuff {
         }
 
         this._currentAnimationAction = 1;
+
+        if(this.keys['ArrowUp'] ||
+        this.keys['ArrowDown']){
+          this.changeSign = true;
+          this.ChangeSign();
+        }
       }
       if (this.keys['ArrowRight']) {
         if(this.sign == 0){
@@ -210,6 +270,12 @@ export class Player extends Stuff {
         }
 
         this._currentAnimationAction = 1;
+
+        if(this.keys['ArrowUp'] ||
+        this.keys['ArrowDown']){
+          this.changeSign = true;
+          this.ChangeSign();
+        }
       }
 
       moveDirection.normalize();
@@ -219,7 +285,6 @@ export class Player extends Stuff {
           this.angle = Math.atan2(moveDirection.x, moveDirection.z);
           this.modelMesh.rotation.y = this.angle;
 
-          console.log(this.angle);
           this.otherKeyOn = false;
         }
       }
