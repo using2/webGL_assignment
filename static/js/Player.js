@@ -1,4 +1,4 @@
-import { AnimationMixer, Mesh, TubeGeometry, Vector3 } from 'three';
+import { AnimationMixer, Mesh, Raycaster, Vector3 } from 'three';
 import { cm1, cm3 } from './common.js';
 import { Stuff } from './Stuff.js';
 
@@ -94,215 +94,238 @@ export class Player extends Stuff {
     }
   }
 
-  walk() {
+  walk(meshes) {
     // 일단 대각선 방향이동에 대한 처리까지 이전방식과 똑같이 수행해두었으나
     // 수정할 부분이 꽤 있음
     // angle을 통해서 sign을 결정하는데 
     // 대각선 방향에 대한 angle을 통해 sign 처리를 해두지 않으면
     // 대각선 방향일 때 이상하게 움직임
     // ex) 키를 누르고 난 후, 이전 방향에 대한 좌우 결정을 한다던가..
-    this.ChangeSign();
-
-    let previousAnimationAction = this._currentAnimationAction;
-
-    window.addEventListener('keydown', (e) => {
-      if((e.code == 'ArrowDown' && !this.keys[e.code]) ||
-      (e.code == 'ArrowLeft' && !this.keys[e.code]) ||
-      (e.code == 'ArrowRight' && !this.keys[e.code])) {
-        this.otherKeyOn = true;
+    if(meshes && this.modelMesh){
+      var charPosition = this.modelMesh.position
+      if (!this.oldPosition) {
+        this.oldPosition = charPosition.clone();
+        return;
       }
+      var direction = new Vector3();
+      direction.subVectors(charPosition, this.oldPosition).normalize(); 
+      this.oldPosition = charPosition.clone();
+      var intersectedObjects = new Raycaster(charPosition, direction).intersectObjects(meshes, false)
 
-      this.keys[e.code] = true;
-    });
-
-    window.addEventListener('keyup', (e) => {
-      this.changeSign = true;
-      delete this.keys[e.code];
-    });
-    
-    if (
-      this.keys['ArrowUp'] ||
-      this.keys['ArrowDown'] ||
-      this.keys['ArrowLeft'] ||
-      this.keys['ArrowRight']
-    ) {
-      let moveDirection = new Vector3();
+      if (intersectedObjects.length > 0 && intersectedObjects[0].distance < 2) {
+        var obj = intersectedObjects[0]
+        var moveV = new Vector3()
+        moveV.subVectors(charPosition, obj.point).normalize();
+        console.log(intersectedObjects);
+        // this.z += moveV.z * 0.3;
+        // this.x += moveV.x * 0.3;
+        // this.y += moveV.y * 0.3;
+        // this.sendPosition();
+      } else {
+        this.ChangeSign();
+  
+        let previousAnimationAction = this._currentAnimationAction;
+  
+        window.addEventListener('keydown', (e) => {
+          if((e.code == 'ArrowDown' && !this.keys[e.code]) ||
+          (e.code == 'ArrowLeft' && !this.keys[e.code]) ||
+          (e.code == 'ArrowRight' && !this.keys[e.code])) {
+            this.otherKeyOn = true;
+          }
+  
+          this.keys[e.code] = true;
+        });
+  
+        window.addEventListener('keyup', (e) => {
+          this.changeSign = true;
+          delete this.keys[e.code];
+        });
       
-      if (this.keys['ArrowUp']) {
-        if(this.sign == 0){
-          moveDirection.z = -1;
-        } else if(this.sign == 1) {
-          moveDirection.z = -1;
-          moveDirection.x = +1;
-        } else if(this.sign == 2) {
-          moveDirection.x = +1;
-        } else if(this.sign == 3) {
-          moveDirection.z = +1;
-          moveDirection.x = +1;
-        } else if(this.sign == 4) {
-          moveDirection.z = +1;
-        } else if(this.sign == 5) {
-          moveDirection.z = +1;
-          moveDirection.x = -1;
-        } else if(this.sign == 6) {
-          moveDirection.x = -1;
-        } else {
-          moveDirection.z = -1;
-          moveDirection.x = -1;
-        }
-
-        this._currentAnimationAction = 1;
-
-        if(this.keys['ArrowLeft'] ||
-        this.keys['ArrowRight']){
-          this.changeSign = true;
-          this.ChangeSign();
-        }
-      }
-      if (this.keys['ArrowDown']) {
-        // 뒤로가기 누른 상태에서 대각선 방향 이동이랑
-        // 대각선 이미 바라보고 있는 상태에서 이동이랑
-        // 서로 다르게 처리가 필요
-        // 안하면 하나에서 엉뚱한 방향으로 이동함
-        if(this.sign == 0){
-          moveDirection.z = +1;
-        } else if(this.sign == 1) {
-          if(this.keys['ArrowLeft'] ||
-          this.keys['ArrowRight']) {
-            moveDirection.z = -1;
-            moveDirection.x = +1;
-          } else {
-            moveDirection.z = +1;
-            moveDirection.x = -1;
+        if (
+          this.keys['ArrowUp'] ||
+          this.keys['ArrowDown'] ||
+          this.keys['ArrowLeft'] ||
+          this.keys['ArrowRight']
+        ) {
+          let moveDirection = new Vector3();
+        
+          if (this.keys['ArrowUp']) {
+            if(this.sign == 0){
+              moveDirection.z = -1;
+            } else if(this.sign == 1) {
+              moveDirection.z = -1;
+              moveDirection.x = +1;
+            } else if(this.sign == 2) {
+              moveDirection.x = +1;
+            } else if(this.sign == 3) {
+              moveDirection.z = +1;
+              moveDirection.x = +1;
+            } else if(this.sign == 4) {
+              moveDirection.z = +1;
+            } else if(this.sign == 5) {
+              moveDirection.z = +1;
+              moveDirection.x = -1;
+            } else if(this.sign == 6) {
+              moveDirection.x = -1;
+            } else {
+              moveDirection.z = -1;
+              moveDirection.x = -1;
+            }
+  
+            this._currentAnimationAction = 1;
+  
+            if(this.keys['ArrowLeft'] ||
+            this.keys['ArrowRight']){
+              this.changeSign = true;
+              this.ChangeSign();
+            }
           }
-        } else if(this.sign == 2) {
-          moveDirection.x = -1;
-        } else if(this.sign == 3) {
-          if(this.keys['ArrowLeft'] ||
-          this.keys['ArrowRight']) {
-            moveDirection.z = +1;
-            moveDirection.x = +1;
-          } else {
-            moveDirection.z = -1;
-            moveDirection.x = -1;
+          if (this.keys['ArrowDown']) {
+            // 뒤로가기 누른 상태에서 대각선 방향 이동이랑
+            // 대각선 이미 바라보고 있는 상태에서 이동이랑
+            // 서로 다르게 처리가 필요
+            // 안하면 하나에서 엉뚱한 방향으로 이동함
+            if(this.sign == 0){
+              moveDirection.z = +1;
+            } else if(this.sign == 1) {
+              if(this.keys['ArrowLeft'] ||
+              this.keys['ArrowRight']) {
+                moveDirection.z = -1;
+                moveDirection.x = +1;
+              } else {
+                moveDirection.z = +1;
+                moveDirection.x = -1;
+              }
+            } else if(this.sign == 2) {
+              moveDirection.x = -1;
+            } else if(this.sign == 3) {
+              if(this.keys['ArrowLeft'] ||
+              this.keys['ArrowRight']) {
+                moveDirection.z = +1;
+                moveDirection.x = +1;
+              } else {
+                moveDirection.z = -1;
+                moveDirection.x = -1;
+              }
+            } else if(this.sign == 4) {
+              moveDirection.z = -1;
+            } else if(this.sign == 5) {
+              if(this.keys['ArrowLeft'] ||
+              this.keys['ArrowRight']) {
+                moveDirection.z = +1;
+                moveDirection.x = +1;
+              } else {
+                moveDirection.z = -1;
+                moveDirection.x = +1;
+              }
+            } else if(this.sign == 6) {
+              moveDirection.x = +1;
+            } else {
+              if(this.keys['ArrowLeft'] ||
+              this.keys['ArrowRight']) {
+                moveDirection.z = -1;
+                moveDirection.x = -1;
+              } else {
+                moveDirection.z = +1;
+                moveDirection.x = +1;
+              }
+            }
+  
+            this._currentAnimationAction = 1;
+  
+            if(this.keys['ArrowLeft'] ||
+            this.keys['ArrowRight']){
+              this.changeSign = true;
+              this.ChangeSign();
+            }
           }
-        } else if(this.sign == 4) {
-          moveDirection.z = -1;
-        } else if(this.sign == 5) {
-          if(this.keys['ArrowLeft'] ||
-          this.keys['ArrowRight']) {
-            moveDirection.z = +1;
-            moveDirection.x = +1;
-          } else {
-            moveDirection.z = -1;
-            moveDirection.x = +1;
+          if (this.keys['ArrowLeft']) {
+            // 대각선 방향으로 이동중일 때에 
+            // 좌우 이동을 어떤 방향으로 갈 것이냐 생각 필요함
+            // 그냥 90도 이동할 경우 직선->대각선 변경 후
+            // 대각선->직선으로 돌아올 방법이 있나..?
+            // 좀 더 생각해보고 수정해야할듯..?
+            if(this.sign == 0){
+              moveDirection.x = -1;
+            } else if(this.sign == 1) {
+              moveDirection.z = -1;
+            } else if(this.sign == 2) {
+              moveDirection.z = -1;
+            } else if(this.sign == 3) {
+              moveDirection.x = +1;
+            } else if(this.sign == 4) {
+             moveDirection.x = +1;
+            } else if(this.sign == 5) {
+              moveDirection.z = +1;
+            } else if(this.sign == 6) {
+              moveDirection.z = +1;
+            } else {
+              moveDirection.x = -1;
+            }
+  
+            this._currentAnimationAction = 1;
+  
+            if(this.keys['ArrowUp'] ||
+            this.keys['ArrowDown']){
+              this.changeSign = true;
+              this.ChangeSign();
+            }
           }
-        } else if(this.sign == 6) {
-          moveDirection.x = +1;
-        } else {
-          if(this.keys['ArrowLeft'] ||
-          this.keys['ArrowRight']) {
-            moveDirection.z = -1;
-            moveDirection.x = -1;
-          } else {
-            moveDirection.z = +1;
-            moveDirection.x = +1;
+          if (this.keys['ArrowRight']) {
+            if(this.sign == 0){
+              moveDirection.x = +1;
+            } else if(this.sign == 1) {
+              moveDirection.x = +1;
+            } else if(this.sign == 2) {
+              moveDirection.z = +1;
+            } else if(this.sign == 3) {
+              moveDirection.z = +1;
+            } else if(this.sign == 4) {
+              moveDirection.x = -1;
+            } else if(this.sign == 5) {
+              moveDirection.x = -1;
+            } else if(this.sign == 6) {
+              moveDirection.z = -1;
+            } else {
+              moveDirection.z = -1;
+            }
+  
+            this._currentAnimationAction = 1;
+  
+            if(this.keys['ArrowUp'] ||
+              this.keys['ArrowDown']) {
+                this.changeSign = true;
+                this.ChangeSign();
+            }
           }
-        }
-
-        this._currentAnimationAction = 1;
-
-        if(this.keys['ArrowLeft'] ||
-        this.keys['ArrowRight']){
-          this.changeSign = true;
-          this.ChangeSign();
-        }
-      }
-      if (this.keys['ArrowLeft']) {
-        // 대각선 방향으로 이동중일 때에 
-        // 좌우 이동을 어떤 방향으로 갈 것이냐 생각 필요함
-        // 그냥 90도 이동할 경우 직선->대각선 변경 후
-        // 대각선->직선으로 돌아올 방법이 있나..?
-        // 좀 더 생각해보고 수정해야할듯..?
-        if(this.sign == 0){
-          moveDirection.x = -1;
-        } else if(this.sign == 1) {
-          moveDirection.z = -1;
-        } else if(this.sign == 2) {
-          moveDirection.z = -1;
-        } else if(this.sign == 3) {
-          moveDirection.x = +1;
-        } else if(this.sign == 4) {
-          moveDirection.x = +1;
-        } else if(this.sign == 5) {
-          moveDirection.z = +1;
-        } else if(this.sign == 6) {
-          moveDirection.z = +1;
+  
+          moveDirection.normalize();
+  
+          if (moveDirection.length() > 0) {
+            if(this.otherKeyOn){
+              this.angle = Math.atan2(moveDirection.x, moveDirection.z);
+              this.modelMesh.rotation.y = this.angle;
+  
+              this.otherKeyOn = false;
+            }
+          }
+  
+          let speed = 0.06;
+          if (this.keys['ShiftLeft'] || this.keys['ShiftRight']) {
+            speed = 0.13;
+            this._currentAnimationAction = 2;
+          }
+        
+          this.z += moveDirection.z * speed;
+          this.x += moveDirection.x * speed;
         } else {
-          moveDirection.x = -1;
+          this._currentAnimationAction = 0;
         }
-
-        this._currentAnimationAction = 1;
-
-        if(this.keys['ArrowUp'] ||
-        this.keys['ArrowDown']){
-          this.changeSign = true;
-          this.ChangeSign();
+  
+        if(this.cannonBody){
+          this.sendPosition(previousAnimationAction);
         }
       }
-      if (this.keys['ArrowRight']) {
-        if(this.sign == 0){
-          moveDirection.x = +1;
-        } else if(this.sign == 1) {
-          moveDirection.x = +1;
-        } else if(this.sign == 2) {
-          moveDirection.z = +1;
-        } else if(this.sign == 3) {
-          moveDirection.z = +1;
-        } else if(this.sign == 4) {
-          moveDirection.x = -1;
-        } else if(this.sign == 5) {
-          moveDirection.x = -1;
-        } else if(this.sign == 6) {
-          moveDirection.z = -1;
-        } else {
-          moveDirection.z = -1;
-        }
-
-        this._currentAnimationAction = 1;
-
-        if(this.keys['ArrowUp'] ||
-        this.keys['ArrowDown']){
-          this.changeSign = true;
-          this.ChangeSign();
-        }
-      }
-
-      moveDirection.normalize();
-
-      if (moveDirection.length() > 0) {
-        if(this.otherKeyOn){
-          this.angle = Math.atan2(moveDirection.x, moveDirection.z);
-          this.modelMesh.rotation.y = this.angle;
-
-          this.otherKeyOn = false;
-        }
-      }
-
-      let speed = 0.06;
-      if (this.keys['ShiftLeft'] || this.keys['ShiftRight']) {
-        speed = 0.13;
-        this._currentAnimationAction = 2;
-      }
-      
-      this.z += moveDirection.z * speed;
-      this.x += moveDirection.x * speed;
-    } else {
-      this._currentAnimationAction = 0;
-    }
-
-    if(this.cannonBody){
-      this.sendPosition(previousAnimationAction);
-    }
+    } 
   }
 }

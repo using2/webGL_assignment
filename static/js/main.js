@@ -41,11 +41,7 @@ camera1.position.x = -8;
 camera1.position.y = 15;
 camera1.position.z = -23;
 
-// const camera2 = new THREE.PerspectiveCamera(
-//   75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
 cm1.scene.add(camera1);
-// cm1.scene.add(camera2);
 
 const light = new THREE.AmbientLight('white', 2);
 cm1.scene.add(light);
@@ -82,6 +78,7 @@ cm1.world.addContactMaterial(playerContactMaterial);
 cm1.world.addContactMaterial(defaultPlayerContactMaterial);
 
 let meshs = [];
+let collideMeshes = [];
 
 const floor = new Floor({
   name: 'floor'
@@ -98,6 +95,7 @@ const back = new Back({
   mass: 0
 });
 meshs.push(back);
+collideMeshes.push(back.mesh);
 
 const player = new Player({
   name: `${username}`,
@@ -140,6 +138,7 @@ socket.on('oldCharacter', users => {
         other.actions[user.action].play();
       }
       meshs.push(other);
+      collideMeshes.push(other.mesh);
     }
   });
 });
@@ -158,6 +157,7 @@ socket.on('newCharacter', position => {
     other.actions[position.action].play();
   }
   meshs.push(other);
+  collideMeshes.push(other.mesh);
 });
 
 socket.on('otherPosition', (position, action) =>{
@@ -204,9 +204,6 @@ socket.on('eraseCharacter', username => {
   })
 });
 
-const raycaster = new THREE.Raycaster();
-const raycastDirection = new THREE.Vector3(0, 0, -1);
-
 function updateCameraPosition() {
   const playerPosition = player.cannonBody.position;
   const rotation = Math.PI + player.angle;
@@ -248,12 +245,7 @@ function updateCameraPosition() {
   const lookAtVector = new THREE.Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
   camera1.lookAt(lookAtVector);
 
-  // camera2.position.x = playerPosition.x;
-  // camera2.position.y = playerPosition.y + 0.6; 
-  // camera2.position.z = playerPosition.z;
-
   camera1.rotation.set(0, rotation, 0);
-  // camera2.rotation.set(0, rotation, 0);
 }
 
 const clock = new THREE.Clock();
@@ -265,14 +257,7 @@ function draw() {
     updateCameraPosition();
   }
 
-  // raycaster.setFromCamera(new THREE.Vector2(0, 0), camera2);
-  // raycaster.ray.direction.copy(raycastDirection);
-
-  // raycaster.far = 1;
-
-  // const intersects = raycaster.intersectObjects(cm1.scene.children);
-
-  player.walk();
+  player.walk(collideMeshes);
 
   let cannonStepTime = 1 / 60;
   if (delta < 0.01) cannonStepTime = 1 / 120;
